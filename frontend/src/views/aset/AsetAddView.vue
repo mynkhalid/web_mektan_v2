@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-import Swal from 'sweetalert2';
+import { loading, success, error } from '../../utils/feedback';
 
 const router = useRouter();
 
@@ -53,12 +53,7 @@ const hapusFoto = () => {
 const submitForm = async () => {
     isSubmitting.value = true;
 
-    Swal.fire({
-        title: 'Menyimpan Aset...',
-        text: 'Mohon tunggu sistem sedang mengunggah data.',
-        allowOutsideClick: false,
-        didOpen: () => { Swal.showLoading(); }
-    });
+    loading('Menyimpan Aset...', 'Mohon tunggu sistem sedang mengunggah data.');
 
     try {
         const formData = new FormData();
@@ -86,23 +81,13 @@ const submitForm = async () => {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
 
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: 'Aset baru berhasil ditambahkan ke dalam sistem.',
-            confirmButtonColor: '#198754'
-        }).then(() => {
+        success('Berhasil!', 'Aset baru berhasil ditambahkan ke dalam sistem.').then(() => {
             router.push('/aset');
         });
 
     } catch (error) {
         console.error("Gagal upload:", error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Gagal Menyimpan',
-            text: 'Terjadi kesalahan pada server. Pastikan kode perangkat belum digunakan.',
-            confirmButtonColor: '#dc3545'
-        });
+        error('Gagal Menyimpan', 'Terjadi kesalahan pada server. Pastikan kode perangkat belum digunakan.');
     } finally {
         isSubmitting.value = false;
     }
@@ -111,11 +96,13 @@ const submitForm = async () => {
 
 <template>
     <div class="container-fluid pb-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="page-header">
             <h2 class="fw-bold text-dark mb-0">➕ Tambah Aset Baru</h2>
-            <button @click="router.back()" class="btn btn-outline-secondary shadow-sm">
-                <i class="bi bi-arrow-left"></i> Kembali
-            </button>
+            <div class="page-header-actions">
+                <button @click="router.back()" class="btn btn-outline-secondary shadow-sm touch-target">
+                    <i class="bi bi-arrow-left"></i> Kembali
+                </button>
+            </div>
         </div>
 
         <div class="card border-0 shadow-sm">
@@ -224,7 +211,7 @@ const submitForm = async () => {
                                 <label class="form-label">Foto Alat</label>
                                 <input ref="fileInputRef" @change="handleFileUpload" type="file" class="form-control" accept="image/*">
                                 
-                                <div class="mt-3 text-center rounded p-3" style="border: 2px dashed #dee2e6; background-color: #f8f9fa;">
+                                <div class="mt-3 text-center rounded p-3 upload-box" style="border: 2px dashed #dee2e6; background-color: #f8f9fa;">
                                     <div v-if="previewGambar" class="position-relative d-inline-block">
                                         <img :src="previewGambar" alt="Preview" class="img-fluid rounded shadow-sm" style="max-height: 180px;">
                                         <button @click="hapusFoto" type="button" class="btn btn-sm btn-danger position-absolute top-0 start-100 translate-middle rounded-circle shadow" style="width: 28px; height: 28px; padding: 0;" title="Hapus foto">
@@ -245,9 +232,9 @@ const submitForm = async () => {
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-end mt-4 pt-3 border-top bg-white">
-                        <button type="button" @click="router.back()" class="btn btn-light border me-2 px-4 text-muted">Batal</button>
-                        <button type="submit" class="btn btn-primary px-5 fw-bold shadow-sm" :disabled="isSubmitting">
+                    <div class="form-footer d-flex justify-content-end mt-4 pt-3 border-top bg-white">
+                        <button type="button" @click="router.back()" class="btn btn-light border me-2 px-4 text-muted form-footer-btn">Batal</button>
+                        <button type="submit" class="btn btn-primary px-5 fw-bold shadow-sm form-footer-btn" :disabled="isSubmitting">
                             <span v-if="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
                             {{ isSubmitting ? 'Menyimpan...' : 'Simpan Aset Baru' }}
                         </button>

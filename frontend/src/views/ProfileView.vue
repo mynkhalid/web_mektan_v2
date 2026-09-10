@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
-import Swal from 'sweetalert2';
+import { success, error, warning } from '../utils/feedback';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL;
@@ -164,7 +164,7 @@ onMounted(async () => {
         }
 
     } catch (error) {
-        Swal.fire('Error', 'Gagal mengambil data profil.', 'error');
+        error('Error', 'Gagal mengambil data profil.');
     }
 });
 
@@ -186,7 +186,7 @@ const handleUpdate = async () => {
     
     if (formData.value.role === 'upja') {
         if (!selectedKabId.value || !selectedKecId.value || !selectedDesaId.value) {
-            Swal.fire('Perhatian', 'Mohon lengkapi data alamat wilayah Anda secara utuh.', 'warning');
+            warning('Perhatian', 'Mohon lengkapi data alamat wilayah Anda secara utuh.');
             loading.value = false;
             return;
         }
@@ -233,13 +233,13 @@ const handleUpdate = async () => {
             };
             sessionStorage.setItem('user', JSON.stringify(newSession));
 
-            Swal.fire('Berhasil', 'Profil berhasil diperbarui!', 'success').then(() => {
+            success('Berhasil', 'Profil berhasil diperbarui!').then(() => {
                 window.location.reload();
             });
         }
 
     } catch (error) {
-        Swal.fire('Gagal', 'Terjadi kesalahan saat menyimpan data.', 'error');
+        error('Gagal', 'Terjadi kesalahan saat menyimpan data.');
     } finally {
         loading.value = false;
     }
@@ -263,7 +263,7 @@ const handleUpdate = async () => {
                         
                         <label for="uploadFoto" 
                                class="btn btn-primary position-absolute rounded-circle d-flex align-items-center justify-content-center shadow" 
-                               style="width: 42px; height: 42px; bottom: 5px; right: 5px; border: 3px solid white; cursor: pointer; transition: transform 0.2s;">
+                               style="width: 44px; height: 44px; bottom: 5px; right: 5px; border: 3px solid white; cursor: pointer; transition: transform 0.2s;">
                             <i class="bi bi-camera-fill fs-5"></i>
                         </label>
                         <input type="file" id="uploadFoto" hidden @change="handleFileUpload" accept="image/*">
@@ -297,7 +297,10 @@ const handleUpdate = async () => {
                             <div class="row mb-3">
                                 <div class="col-md-6 mb-3 mb-md-0">
                                     <label class="form-label small fw-bold text-muted">Username (Permanen)</label>
-                                    <input type="text" class="form-control bg-light text-secondary fw-bold" v-model="formData.username" readonly>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control bg-light text-secondary fw-bold" v-model="formData.username" disabled>
+                                        <span class="input-group-text bg-light text-muted"><i class="bi bi-lock-fill"></i></span>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label small fw-bold">Email Utama</label>
@@ -380,8 +383,8 @@ const handleUpdate = async () => {
                                 <input type="password" class="form-control border-warning-subtle" v-model="formData.password" placeholder="Isi hanya jika ingin mengganti password Anda...">
                             </div>
 
-                            <div class="d-flex justify-content-end mt-4">
-                                <button type="submit" class="btn btn-primary px-5 fw-bold shadow-sm" :disabled="loading || isLoadingWilayah">
+                            <div class="form-footer d-flex justify-content-end mt-4 pt-3 border-top bg-white gap-2">
+                                <button type="submit" class="btn btn-primary px-5 fw-bold shadow-sm form-footer-btn touch-target" :disabled="loading || isLoadingWilayah">
                                     <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
                                     {{ loading ? 'MENYIMPAN...' : 'SIMPAN PERUBAHAN' }}
                                 </button>

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import axios from 'axios';
-import Swal from 'sweetalert2';
+import { success, error } from '../utils/feedback';
 import mqtt from 'mqtt';
 
 const MQTT_HOST = import.meta.env.VITE_MQTT_HOST;
@@ -189,9 +189,9 @@ const saveTarif = async () => {
     isSavingTarif.value = true;
     try {
         await axios.put(`${import.meta.env.VITE_API_BASE_URL}/settings/tarif`, { nilai: tarifPerHa.value });
-        Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Tarif dasar telah diperbarui.', confirmButtonColor: '#198754' });
+        success('Berhasil!', 'Tarif dasar telah diperbarui.');
     } catch (e) {
-        Swal.fire('Error', 'Gagal menyimpan perubahan tarif', 'error');
+        error('Error', 'Gagal menyimpan perubahan tarif');
     } finally {
         isSavingTarif.value = false;
     }
@@ -254,24 +254,25 @@ onUnmounted(() => {
   <div class="container-fluid d-flex flex-column pb-2" style="min-height: calc(100vh - 5rem);">
     
     <div class="flex-grow-1">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h3 class="fw-bold text-dark mb-1">📘 Buku Besar & Estimasi Biaya</h3>
-                <div class="d-flex align-items-center gap-2">
-                    <span class="text-muted small">Filter Rekapitulasi Tanggal: </span>
-                    <input type="date" v-model="selectedDate" class="form-control form-control-sm border-primary text-primary fw-bold" style="width: auto;">
-                    
-                </div>
-            </div>
-            
-            <div class="card bg-success text-white border-0 shadow-sm" style="min-width: 250px;">
-                <div class="card-body py-2 px-3 text-end">
-                    <small class="d-block text-white-50 text-uppercase fw-bold">Total Akumulasi Harian</small>
+        <div class="d-flex flex-column flex-md-row align-items-md-center gap-3 mb-4">
+            <!-- Judul (selalu teratas di mobile) -->
+            <h3 class="fw-bold text-dark mb-0 order-1 flex-grow-1">📘 Buku Besar & Estimasi Biaya</h3>
+
+            <!-- Badge total: mobile → di bawah judul, sebelum filter. Desktop → paling kanan -->
+            <div class="card bg-success text-white border-0 shadow-sm total-badge-card order-2 order-md-3 ms-md-auto">
+                <div class="card-body py-2 px-3 d-flex flex-row flex-md-column justify-content-between align-items-center gap-2 text-md-end">
+                    <small class="text-white-50 text-uppercase fw-bold text-nowrap">Total Akumulasi Harian</small>
                     <h3 class="fw-bold mb-0">
                         <span v-if="isCalculating" class="spinner-border spinner-border-sm me-2"></span>
                         {{ formatRupiah(totalOmzetSemuaAlat) }}
                     </h3>
                 </div>
+            </div>
+
+            <!-- Filter tanggal: mobile → paling bawah header. Desktop → di samping judul -->
+            <div class="d-flex align-items-center gap-2 flex-wrap order-3 order-md-2">
+                <span class="text-muted small">Filter Rekapitulasi Tanggal: </span>
+                <input type="date" v-model="selectedDate" class="form-control form-control-sm border-primary text-primary fw-bold" style="width: auto;">
             </div>
         </div>
 
@@ -316,7 +317,48 @@ onUnmounted(() => {
             </div>
 
             <div class="col-md-8">
-                <div class="card border-0 shadow-sm h-100 position-relative overflow-hidden">
+
+                <!-- [MOBILE] Semua info tampil utuh tanpa scroll horizontal (seperti Beranda) -->
+                <div class="d-md-none d-flex flex-column gap-3 mb-3">
+                    <div v-if="isCalculating" class="alert alert-light border small py-2 mb-0">
+                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                        Menghitung data riwayat...
+                    </div>
+
+                    <div v-for="item in items" :key="item.alsintan_id" class="card border-0 shadow-sm">
+                        <div class="card-body p-3">
+                            <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                                <h6 class="fw-bold text-dark mb-0">{{ item.nama_alat }}</h6>
+                                <span class="badge bg-secondary text-white fw-normal text-nowrap">{{ item.kode_perangkat }}</span>
+                            </div>
+                            <div class="row g-2 small">
+                                <div class="col-6">
+                                    <div class="bg-light rounded-3 p-2 h-100">
+                                        <small class="text-muted d-block fw-bold">JAM KERJA</small>
+                                        <span class="fw-bold text-dark">{{ formatHM(dailyStats[item.alsintan_id]?.hm || 0) }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="bg-light rounded-3 p-2 h-100">
+                                        <small class="text-muted d-block fw-bold">LUAS TERGARAP</small>
+                                        <span class="fw-bold text-primary">{{ hitungLuas(item).toFixed(3) }} Ha</span>
+                                        <small class="text-muted d-block">({{ (dailyStats[item.alsintan_id]?.distance || 0).toFixed(0) }} meter)</small>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="rounded-3 p-2 text-end">
+                                        <small class="text-success d-block fw-bold">BIAYA SEWA ALSINTAN</small>
+                                        <span class="fw-bold text-success fs-5">{{ formatRupiah(hitungLuas(item) * tarifPerHa) }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="items.length === 0" class="text-center text-muted py-4">Belum ada armada yang terdaftar.</div>
+                </div>
+
+                <div class="card border-0 shadow-sm h-100 position-relative overflow-hidden d-none d-md-block">
                     
                     <div v-if="isCalculating" class="position-absolute w-100 h-100 bg-white bg-opacity-75 d-flex justify-content-center align-items-center" style="z-index: 10;">
                         <div class="text-center">
@@ -326,8 +368,8 @@ onUnmounted(() => {
                     </div>
 
                     <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
+                        <div class="estimasi-table-wrap">
+                            <table class="table table-hover align-middle mb-0 estimasi-table">
                                 <thead class="bg-light">
                                     <tr>
                                         <th class="ps-4">Nama Aset Alsintan</th>
@@ -375,10 +417,6 @@ onUnmounted(() => {
         </div>
     </div>
 
-    <div class="text-center mt-5 pt-3 border-top text-muted" style="font-size: 0.75rem; letter-spacing: 0.5px;">
-        &copy; 2026 Balai Pengembangan Mekanisasi Pertanian - Pemprov Jawa Barat. Versi 1.1.0
-    </div>
-
   </div>
 </template>
 
@@ -389,4 +427,32 @@ onUnmounted(() => {
   70% { opacity: 0.8; box-shadow: 0 0 0 6px rgba(25, 135, 84, 0); }
   100% { opacity: 1; box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); }
 }
+
+/* Badge total: penuh di mobile, auto di desktop (tidak terpotong) */
+.total-badge-card { width: 100%; min-width: 0; }
+@media (min-width: 768px) {
+    .total-badge-card { width: auto; min-width: 260px; }
+}
+
+/* ── Tabel Detail Estimasi: pola Phase 3 (scroll terkontrol + kolom sticky) ── */
+.estimasi-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+}
+.estimasi-table {
+    min-width: 620px;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+.estimasi-table thead th:first-child,
+.estimasi-table tbody td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background-color: #ffffff;
+    box-shadow: 1px 0 0 rgba(0, 0, 0, 0.04);
+}
+.estimasi-table thead th:first-child { z-index: 3; background-color: #f8f9fa; }
+.estimasi-table tbody tr:hover td:first-child { background-color: #f8f9fa; }
 </style>

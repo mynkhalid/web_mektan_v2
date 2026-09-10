@@ -2,7 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-import Swal from 'sweetalert2';
+import { success, error, warning } from '../utils/feedback';
 
 import bg1 from '../assets/images/bg-mektan-1.jpg';
 import bg2 from '../assets/images/bg-mektan-2.jpg';
@@ -104,7 +104,7 @@ onUnmounted(() => {
 // --- LOGIKA REGISTRASI ---
 const handleRegister = async () => {
     if (!selectedKabId.value || !selectedKecId.value || !selectedDesaId.value) {
-        Swal.fire('Perhatian', 'Mohon lengkapi domisili wilayah operasional (Kabupaten, Kecamatan, Desa).', 'warning');
+        warning('Perhatian', 'Mohon lengkapi domisili wilayah operasional (Kabupaten, Kecamatan, Desa).');
         return;
     }
 
@@ -116,28 +116,11 @@ const handleRegister = async () => {
     try {
         const response = await axios.post(`${API_BASE_URL}/users/register`, form.value);
         
-        Swal.fire({
-            icon: 'success',
-            title: 'Pendaftaran Berhasil!',
-            text: response.data.message || 'Akun Anda sedang diverifikasi.',
-            timer: 2500,
-            showConfirmButton: false,
-            backdrop: `rgba(15, 23, 42, 0.8)`, 
-            color: '#1e293b',
-            customClass: {
-                popup: 'rounded-4 shadow-lg border-0',
-                title: 'text-agri-green fw-bold'
-            }
-        }).then(() => {
+        success('Pendaftaran Berhasil!', response.data.message || 'Akun Anda sedang diverifikasi.').then(() => {
             router.push('/login');
         });
     } catch (error) {
-        Swal.fire({
-            title: 'Gagal Mendaftar',
-            text: error.response?.data?.message || 'Terjadi kesalahan saat terhubung ke server.',
-            icon: 'error',
-            confirmButtonColor: '#ef4444'
-        });
+        error('Gagal Mendaftar', error.response?.data?.message || 'Terjadi kesalahan saat terhubung ke server.');
     } finally {
         isSubmitting.value = false;
     }
@@ -273,7 +256,7 @@ const handleRegister = async () => {
                     <div class="text-center mt-4 pt-4 border-top">
                         <small class="text-muted d-block mb-2" style="font-size: 0.9rem;">
                             Sudah punya akun? 
-                            <RouterLink to="/login" class="text-agri-green fw-bold text-decoration-none transition-link">Masuk di sini</RouterLink>
+                            <RouterLink to="/login" class="text-agri-green fw-bold d-inline-block py-2 ms-1 px-1 text-decoration-none transition-link">Masuk di sini</RouterLink>
                         </small>
                     </div>
                 </div>
@@ -319,6 +302,11 @@ const handleRegister = async () => {
 
 .input-icon { left: 1rem; top: 50%; transform: translateY(-50%); font-size: 1.15rem; z-index: 10; }
 select.custom-input { appearance: none; background-image: none; cursor: pointer; }
+
+@media (max-width: 767.98px) {
+    .custom-input { font-size: 1rem; }
+    .custom-input-wrapper .btn { min-width: 44px; min-height: 44px; }
+}
 
 .login-btn { border-radius: 12px; transition: all 0.3s; letter-spacing: 0.5px; }
 .tracking-wide { letter-spacing: 2px; }

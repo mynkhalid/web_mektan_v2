@@ -1,22 +1,18 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue';
-import { RouterLink, useRouter } from 'vue-router';
-import Swal from 'sweetalert2';
-
-const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL;
-const router = useRouter();
+import { onMounted, ref } from 'vue';
+import { RouterLink } from 'vue-router';
 
 const props = defineProps({
-    isClosed: Boolean
+    isMobile: Boolean,
+    isTablet: Boolean,
+    isSidebarOpen: Boolean,
+    isSidebarCollapsed: Boolean
 });
 
-const emit = defineEmits(['toggle-sidebar']);
+const emit = defineEmits(['toggle-sidebar', 'close-mobile']);
 
-const activeMenu = ref(null);
-const userName = ref('Admin');
-const userPhoto = ref(null);
 const userRole = ref('');
-const isLoggedIn = ref(false); 
+const isLoggedIn = ref(false);
 
 onMounted(() => {
     const session = sessionStorage.getItem('user');
@@ -25,164 +21,165 @@ onMounted(() => {
     if (session && token) {
         try {
             const userData = JSON.parse(session);
-            userName.value = userData.nama || 'Pengguna';
-            userRole.value = userData.role || ''; // Mendapatkan role (mektan, upja, atau operator)
-            isLoggedIn.value = true; 
-
-            const fotoFilename = userData.foto || userData.foto_profil;
-
-            if (fotoFilename) {
-                if (fotoFilename.startsWith('http')) {
-                    userPhoto.value = fotoFilename; 
-                } else {
-                    userPhoto.value = `${IMAGE_BASE_URL}/profiles/${fotoFilename}`;
-                }
-            } else {
-                userPhoto.value = `https://ui-avatars.com/api/?name=${userName.value}&background=0D6EFD&color=fff`;
-            }
+            userRole.value = userData.role || '';
+            isLoggedIn.value = true;
         } catch (e) {
             console.error("Gagal parsing user data");
         }
     }
-});  
+});
 
-const handleLogout = () => {
-    Swal.fire({
-        title: 'Konfirmasi Logout',
-        text: 'Apakah Anda yakin ingin logout?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Ya, Logout',
-        cancelButtonText: 'Batal'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            sessionStorage.removeItem('user');
-            sessionStorage.removeItem('token');
-            window.location.href = '/';
-        }
-    });
+const handleNavClick = () => {
+    if (props.isMobile) {
+        emit('close-mobile');
+    }
 };
 
-watch(() => props.isClosed, (newVal) => {
-    if (newVal === true) activeMenu.value = null;
-});
+const showLabels = () => {
+    if (props.isMobile) return !props.isSidebarCollapsed;
+    if (props.isTablet) return !props.isSidebarCollapsed;
+    return !props.isSidebarCollapsed;
+};
 </script>
 
 <template>
-    <div class="d-flex flex-column flex-shrink-0 p-3 h-100 sidebar-container" :class="{ 'sidebar-is-closed': isClosed }">
-    
-        <div class="d-flex align-items-center mb-3 mb-md-0 px-2 w-100">
-            <RouterLink 
-                v-if="!isClosed" 
-                to="/" 
-                class="d-flex align-items-center text-white text-decoration-none me-auto fade-in custom-brand-hover">
-                
-                <img src="/logo-mektan.jpeg" alt="Logo Kementan" width="36" height="36" class="rounded-circle border border-2 border-white me-2 shadow-sm" style="object-fit: cover;">
-                <span class="fs-4 fw-bold text-nowrap tracking-wide">MyMektan</span>
-            </RouterLink>
+    <aside class="sidebar-drawer"
+           :class="{
+               'collapsed': !isMobile && isSidebarCollapsed,
+               'expanded': isTablet && !isSidebarCollapsed,
+               'mobile-open': isMobile && isSidebarOpen
+           }">
+        <div class="d-flex flex-column flex-shrink-0 p-3 h-100 sidebar-inner">
 
-            <button 
-                @click="$emit('toggle-sidebar')" 
-                class="btn btn-dark border-0 p-1 d-flex align-items-center justify-content-center"
-                :class="isClosed ? 'mx-auto' : 'ms-auto'"
-                style="width: 30px; height: 30px;">
-                <i class="bi bi-chevron-left transition-icon" :class="{ 'rotate-180': isClosed }"></i>
-            </button>
-        </div>
-    
-        <hr class="text-white-50 mx-2 mt-3"> 
-        
-        <ul class="nav nav-pills flex-column mb-auto px-0 w-100">
-            <li class="nav-item">
-                <RouterLink to="/" class="nav-link custom-nav-link d-flex align-items-center" :class="{ 'justify-content-center': isClosed }" active-class="active">
-                    <i class="bi bi-bar-chart-fill fs-5 flex-shrink-0"></i>
-                    <span v-if="!isClosed" class="ms-3 fade-in text-nowrap">Beranda</span>
+            <!-- Brand + Toggle -->
+            <div class="d-flex align-items-center justify-content-center mb-3 px-2 w-100">
+                <RouterLink
+                    v-if="showLabels()"
+                    to="/"
+                    class="d-flex align-items-center text-white text-decoration-none mx-auto fade-in custom-brand-hover"
+                    @click="handleNavClick">
+                    <img src="/logo-mektan.jpeg" alt="Logo" width="36" height="36"
+                         class="rounded-circle border border-2 border-white me-2 shadow-sm"
+                         style="object-fit: cover;">
+                    <span class="fs-4 fw-bold text-nowrap">MyMektan</span>
                 </RouterLink>
-            </li>
-            
-            <li class="nav-item">
-                <RouterLink to="/aset" class="nav-link custom-nav-link d-flex align-items-center" :class="{ 'justify-content-center': isClosed }" active-class="active">
-                    <i class="bi bi-tools fs-5 flex-shrink-0"></i>
-                    <span v-if="!isClosed" class="ms-3 fade-in text-nowrap">Katalog Aset</span>
-                </RouterLink>
-            </li>
 
-            <!-- [BARU] Menu Verifikasi Akun HANYA untuk role mektan -->
-            <li v-if="userRole === 'mektan'" class="nav-item">
-                <RouterLink to="/verifikasi-akun" class="nav-link custom-nav-link d-flex align-items-center" :class="{ 'justify-content-center': isClosed }" active-class="active">
-                    <i class="bi bi-shield-check fs-5 flex-shrink-0 text-nowrap"></i>
-                    <span v-if="!isClosed" class="ms-3 fade-in text-nowrap">Verifikasi Akun</span>
+                <RouterLink v-else to="/"
+                    class="mx-auto custom-brand-hover"
+                    @click="handleNavClick">
+                    <img src="/logo-mektan.jpeg" alt="Logo" width="36" height="36"
+                         class="rounded-circle border border-2 border-white shadow-sm"
+                         style="object-fit: cover;">
                 </RouterLink>
-            </li>
-            
-            <li v-if="isLoggedIn" class="nav-item">
-                <RouterLink to="/monitoring" class="nav-link custom-nav-link d-flex align-items-center" :class="{ 'justify-content-center': isClosed }" active-class="active">
-                    <i class="bi bi-globe-americas fs-5 flex-shrink-0"></i>
-                    <span v-if="!isClosed" class="ms-3 fade-in text-nowrap">Monitoring Peta</span>
-                </RouterLink>
-            </li>
-            
-            <li v-if="isLoggedIn" class="nav-item">
-                <RouterLink to="/estimasi" class="nav-link custom-nav-link d-flex align-items-center" :class="{ 'justify-content-center': isClosed }" active-class="active">
-                    <i class="bi bi-calculator fs-5 flex-shrink-0"></i>
-                    <span v-if="!isClosed" class="ms-3 fade-in text-nowrap">Estimasi Lahan</span>
-                </RouterLink>
-            </li>
-        </ul>
-    
-        <hr class="text-white-50 mx-2">
-    
-        <div v-if="isLoggedIn" class="dropdown mx-2" :class="{ 'text-center': isClosed, 'dropend': isClosed }">
-            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" 
-                :class="{ 'justify-content-center': isClosed }"
-                id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                <img :src="userPhoto" alt="Profile" width="32" height="32" class="rounded-circle object-fit-cover border border-secondary">
-                <strong v-if="!isClosed" class="ms-2 fade-in text-nowrap">{{ userName }}</strong>
-            </a>
-            
-            <ul class="dropdown-menu dropdown-menu-dark text-small shadow"
-                aria-labelledby="dropdownUser1" 
-                :class="{ 'fixed-menu': isClosed }">
-                <li><RouterLink to="/profile" class="dropdown-item">Profil Saya</RouterLink></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#" @click.prevent="handleLogout">Logout</a></li>
+
+                <!-- <button
+                    v-if="!isMobile"
+                    @click="emit('toggle-sidebar')"
+                    class="btn btn-dark border-0 p-1 d-flex align-items-center justify-content-center ms-auto flex-shrink-0"
+                    :class="{ 'mx-auto': !showLabels() }"
+                    style="width: 28px; height: 28px;">
+                    <i class="bi bi-chevron-left transition-icon" :class="{ 'rotate-180': isSidebarCollapsed }"></i>
+                </button> -->
+            </div>
+
+            <hr class="text-white-50 mx-2 mt-2">
+
+            <!-- Navigation Menu -->
+            <ul class="nav nav-pills flex-column mb-auto px-0 w-100">
+                <li class="nav-item">
+                    <RouterLink to="/" class="nav-link custom-nav-link d-flex align-items-center"
+                        :class="{ 'justify-content-center': !showLabels() }"
+                        active-class="active"
+                        @click="handleNavClick">
+                        <i class="bi bi-bar-chart-fill fs-5 flex-shrink-0"></i>
+                        <span v-if="showLabels()" class="ms-3 fade-in text-nowrap">Beranda</span>
+                    </RouterLink>
+                </li>
+
+                <li class="nav-item">
+                    <RouterLink to="/aset" class="nav-link custom-nav-link d-flex align-items-center"
+                        :class="{ 'justify-content-center': !showLabels() }"
+                        active-class="active"
+                        @click="handleNavClick">
+                        <i class="bi bi-tools fs-5 flex-shrink-0"></i>
+                        <span v-if="showLabels()" class="ms-3 fade-in text-nowrap">Katalog Aset</span>
+                    </RouterLink>
+                </li>
+
+                <li v-if="userRole === 'mektan'" class="nav-item">
+                    <RouterLink to="/verifikasi-akun" class="nav-link custom-nav-link d-flex align-items-center"
+                        :class="{ 'justify-content-center': !showLabels() }"
+                        active-class="active"
+                        @click="handleNavClick">
+                        <i class="bi bi-shield-check fs-5 flex-shrink-0 text-nowrap"></i>
+                        <span v-if="showLabels()" class="ms-3 fade-in text-nowrap">Verifikasi Akun</span>
+                    </RouterLink>
+                </li>
+
+                <li v-if="isLoggedIn" class="nav-item">
+                    <RouterLink to="/monitoring" class="nav-link custom-nav-link d-flex align-items-center"
+                        :class="{ 'justify-content-center': !showLabels() }"
+                        active-class="active"
+                        @click="handleNavClick">
+                        <i class="bi bi-globe-americas fs-5 flex-shrink-0"></i>
+                        <span v-if="showLabels()" class="ms-3 fade-in text-nowrap">Monitoring Peta</span>
+                    </RouterLink>
+                </li>
+
+                <li v-if="isLoggedIn" class="nav-item">
+                    <RouterLink to="/estimasi" class="nav-link custom-nav-link d-flex align-items-center"
+                        :class="{ 'justify-content-center': !showLabels() }"
+                        active-class="active"
+                        @click="handleNavClick">
+                        <i class="bi bi-calculator fs-5 flex-shrink-0"></i>
+                        <span v-if="showLabels()" class="ms-3 fade-in text-nowrap">Estimasi Lahan</span>
+                    </RouterLink>
+                </li>
             </ul>
-        </div>
 
-        <div v-else class="d-flex flex-column gap-2 px-2" :class="{ 'align-items-center': isClosed }">
-            <RouterLink to="/login" class="btn btn-primary btn-sm fw-bold w-100 d-flex align-items-center justify-content-center">
-                <i class="bi bi-box-arrow-in-right" :class="{ 'fs-5': isClosed }"></i>
-                <span v-if="!isClosed" class="ms-2">Masuk</span>
-            </RouterLink>
-            
-            <RouterLink to="/register" class="btn btn-outline-light btn-sm fw-bold w-100 d-flex align-items-center justify-content-center">
-                <i class="bi bi-person-plus-fill" :class="{ 'fs-5': isClosed }"></i>
-                <span v-if="!isClosed" class="ms-2">Daftar</span>
-            </RouterLink>
-        </div>
+            <hr class="text-white-50 mx-2">
 
-    </div>
+            <!-- Auth Buttons (logged-out users only; profile/logout lives in topbar) -->
+            <div v-if="!isLoggedIn" class="d-flex flex-column gap-2 px-2" :class="{ 'align-items-center': !showLabels() }">
+                <RouterLink to="/login" class="btn btn-primary btn-sm fw-bold w-100 d-flex align-items-center justify-content-center"
+                    @click="handleNavClick">
+                    <i class="bi bi-box-arrow-in-right" :class="{ 'fs-5': !showLabels() }"></i>
+                    <span v-if="showLabels()" class="ms-2">Masuk</span>
+                </RouterLink>
+
+                <RouterLink to="/register" class="btn btn-outline-light btn-sm fw-bold w-100 d-flex align-items-center justify-content-center"
+                    @click="handleNavClick">
+                    <i class="bi bi-person-plus-fill" :class="{ 'fs-5': !showLabels() }"></i>
+                    <span v-if="showLabels()" class="ms-2">Daftar</span>
+                </RouterLink>
+            </div>
+
+        </div>
+    </aside>
 </template>
 
 <style scoped>
-/* ========================================= */
-/* KUNCI UI SIMETRIS                         */
-/* ========================================= */
-
-.custom-nav-link {
-    border-radius: 8px !important;  
-    margin: 4px 1px;               
-    color: #e9ecef;
-    transition: all 0.2s ease-in-out;
+.sidebar-inner {
+    background-color: inherit;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
-.sidebar-is-closed .custom-nav-link {
-    margin: 4px auto !important;    
-    padding-left: 0.8rem;           
-    padding-right: 0.8rem;          
-    width: max-content;             
+.custom-nav-link {
+    border-radius: 8px !important;
+    margin: 4px 6px;
+    color: #e2e8f0;
+    transition: all 0.2s ease-in-out;
+    padding: 0.65rem 0.95rem;
+    font-size: 0.9rem;
+}
+
+.sidebar-drawer.collapsed .custom-nav-link,
+.sidebar-drawer:not(.expanded) .custom-nav-link {
+    margin: 4px auto;
+    padding-left: 0.95rem;
+    padding-right: 0.95rem;
+    width: max-content;
 }
 
 .custom-nav-link:hover {
@@ -191,18 +188,9 @@ watch(() => props.isClosed, (newVal) => {
 }
 
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-    background-color: #0d6efd !important;
+    background-color: var(--primary-color, #2563eb) !important;
     color: #ffffff !important;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2); 
-}
-
-/* ========================================= */
-/* UTILITY CLASSES                           */
-/* ========================================= */
-
-.sidebar-container {
-    background-color: inherit; 
-    z-index: 1050;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
 }
 
 .transition-icon { transition: transform 0.3s ease; }
@@ -214,8 +202,6 @@ watch(() => props.isClosed, (newVal) => {
     to { opacity: 1; transform: translateX(0); }
 }
 
-.text-nowrap { white-space: nowrap; }
-
 .custom-brand-hover {
     transition: opacity 0.2s ease-in-out;
 }
@@ -223,13 +209,12 @@ watch(() => props.isClosed, (newVal) => {
     opacity: 0.8;
 }
 
-.fixed-menu {
-    position: fixed !important;
-    left: 80px !important; 
-    bottom: 20px !important; 
-    top: auto !important;
-    transform: none !important;
-    margin-left: 10px;
-    z-index: 9999 !important; 
+/* Mobile: slightly larger touch targets */
+@media (max-width: 767.98px) {
+    .custom-nav-link {
+        padding: 0.75rem 0.95rem;
+        font-size: 0.95rem;
+        margin: 4px 8px;
+    }
 }
 </style>

@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Swal from 'sweetalert2'
+import { warning, error } from '../utils/feedback'
 
 import DashboardView from '../views/DashboardView.vue'
 import MonitoringView from '../views/MonitoringView.vue'
@@ -120,28 +120,7 @@ router.beforeEach((to, from, next) => {
 
   // 1. Cek Kewajiban Login
   if (to.meta.requiresAuth && !isAuthenticated) {
-    Swal.fire({
-        icon: 'warning',
-        title: 'Akses Terbatas',
-        text: 'Fitur ini hanya untuk pengguna terdaftar. Silakan login terlebih dahulu.',
-        toast: true,
-        position: 'top',
-        timer: 3000,
-        showConfirmButton: false,
-        customClass: {
-                popup: 'shadow-sm border border-success border-opacity-25 rounded-4' // Integrasi dengan class Bootstrap
-        },
-        showClass: { popup: `
-        animate__animated
-        animate__fadeIn 
-        animate__faster
-        ` },
-        hideClass: { popup: `
-        animate__animated
-        animate__fadeOut
-        animate__faster
-        ` }
-    });
+    warning('Akses Terbatas', 'Fitur ini hanya untuk pengguna terdaftar. Silakan login terlebih dahulu.');
     next({ name: 'login' });
     return;
   } 
@@ -155,11 +134,7 @@ router.beforeEach((to, from, next) => {
   // 3. Cek Hak Akses Tingkatan Pengguna (RBAC)
   if (to.meta.allowedRoles) {
       if (!to.meta.allowedRoles.includes(userRole)) {
-          Swal.fire({
-              icon: 'error',
-              title: 'Akses Ditolak!',
-              text: 'Anda tidak memiliki izin untuk membuka halaman ini.',
-          });
+          error('Akses Ditolak!', 'Anda tidak memiliki izin untuk membuka halaman ini.');
           next(from.path); 
           return;
       }

@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { loading as showLoadingAlert, success, error } from '../../utils/feedback';
 
 const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL;
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -39,7 +40,7 @@ const fetchDetail = async () => {
             }
         }
     } catch (error) {
-        Swal.fire('Error', 'Data tidak ditemukan', 'error');
+        error('Error', 'Data tidak ditemukan');
         router.push('/aset');
     } finally {
         loading.value = false;
@@ -59,8 +60,8 @@ const handlePinjamkan = async () => {
         html: `
             <div class="text-start" style="font-size: 0.9rem;">
                 <div class="row g-2 mb-2">
-                    <div class="col-6"><label class="fw-bold small">Mulai Pinjam</label><input type="date" id="swal-mulai" class="form-control form-control-sm"></div>
-                    <div class="col-6"><label class="fw-bold small">Berakhir</label><input type="date" id="swal-akhir" class="form-control form-control-sm"></div>
+                    <div class="col-12 col-sm-6"><label class="fw-bold small">Mulai Pinjam</label><input type="date" id="swal-mulai" class="form-control form-control-sm"></div>
+                    <div class="col-12 col-sm-6"><label class="fw-bold small">Berakhir</label><input type="date" id="swal-akhir" class="form-control form-control-sm"></div>
                 </div>
                 <div class="mb-2">
                     <label class="fw-bold small">Nomor Berita Acara (BA)</label>
@@ -72,8 +73,8 @@ const handlePinjamkan = async () => {
                     <input type="text" id="swal-nama" class="form-control form-control-sm" placeholder="Nama lengkap">
                 </div>
                 <div class="row g-2 mb-2">
-                    <div class="col-6"><label class="fw-bold small text-primary">Jabatan</label><input type="text" id="swal-jabatan" class="form-control form-control-sm" placeholder="Misal: Ketua"></div>
-                    <div class="col-6"><label class="fw-bold small text-primary">No. HP/WA</label><input type="text" id="swal-kontak" class="form-control form-control-sm" placeholder="08..."></div>
+                    <div class="col-12 col-sm-6"><label class="fw-bold small text-primary">Jabatan</label><input type="text" id="swal-jabatan" class="form-control form-control-sm" placeholder="Misal: Ketua"></div>
+                    <div class="col-12 col-sm-6"><label class="fw-bold small text-primary">No. HP/WA</label><input type="text" id="swal-kontak" class="form-control form-control-sm" placeholder="08..."></div>
                 </div>
                 <div class="mb-2">
                     <label class="fw-bold small text-primary">Nama Kelompok Tani / UPJA</label>
@@ -81,9 +82,9 @@ const handlePinjamkan = async () => {
                 </div>
                 <hr class="my-2">
                 <div class="row g-2 mb-2">
-                    <div class="col-4"><label class="fw-bold small text-success">Desa</label><input type="text" id="swal-desa" class="form-control form-control-sm"></div>
-                    <div class="col-4"><label class="fw-bold small text-success">Kecamatan</label><input type="text" id="swal-kec" class="form-control form-control-sm"></div>
-                    <div class="col-4"><label class="fw-bold small text-success">Kabupaten</label><input type="text" id="swal-kab" class="form-control form-control-sm"></div>
+                    <div class="col-12 col-sm-4"><label class="fw-bold small text-success">Desa</label><input type="text" id="swal-desa" class="form-control form-control-sm"></div>
+                    <div class="col-12 col-sm-4"><label class="fw-bold small text-success">Kecamatan</label><input type="text" id="swal-kec" class="form-control form-control-sm"></div>
+                    <div class="col-12 col-sm-4"><label class="fw-bold small text-success">Kabupaten</label><input type="text" id="swal-kab" class="form-control form-control-sm"></div>
                 </div>
                 <div class="mb-1">
                     <label class="fw-bold small">Estimasi Biaya Jasa (Rp)</label>
@@ -121,14 +122,14 @@ const handlePinjamkan = async () => {
 
     if (formValues) {
         try {
-            Swal.fire({ title: 'Menyimpan Transaksi...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            showLoadingAlert('Menyimpan Transaksi...', '');
             
             await axios.post(`${API_BASE_URL}/peminjaman/admin-pinjam`, formValues);
             
-            Swal.fire('Berhasil!', 'Barang telah dikeluarkan dari balai.', 'success');
+            success('Berhasil!', 'Barang telah dikeluarkan dari balai.');
             fetchDetail(); // Refresh data
         } catch (error) {
-            Swal.fire('Gagal', 'Terjadi kesalahan server.', 'error');
+            error('Gagal', 'Terjadi kesalahan server.');
         }
     }
 };
@@ -146,10 +147,10 @@ const handleSelesaikan = async () => {
     if (confirm.isConfirmed) {
         try {
             await axios.post(`${API_BASE_URL}/peminjaman/selesai/${transaksiAktif.value.id_transaksi}`, { alsintan_id: id });
-            Swal.fire('Selesai', 'Peminjaman telah diselesaikan.', 'success');
+            success('Selesai', 'Peminjaman telah diselesaikan.');
             fetchDetail();
         } catch (error) {
-            Swal.fire('Gagal', 'Tidak dapat menyelesaikan transaksi.', 'error');
+            error('Gagal', 'Tidak dapat menyelesaikan transaksi.');
         }
     }
 };
@@ -180,14 +181,16 @@ const lihatSuratJalan = (tx) => {
 <template>
     <div class="container-fluid pb-5">
         
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="page-header">
             <div>
                 <h3 class="fw-bolder text-dark mb-0">Detail Alat Mesin Pertanian</h3>
                 <small class="text-muted">Melihat spesifikasi, status, dan riwayat peminjaman.</small>
             </div>
-            <button @click="router.back()" class="btn btn-outline-secondary shadow-sm fw-bold">
-                <i class="bi bi-arrow-left"></i> Kembali
-            </button>
+            <div class="page-header-actions">
+                <button @click="router.back()" class="btn btn-outline-secondary shadow-sm fw-bold touch-target">
+                    <i class="bi bi-arrow-left"></i> Kembali
+                </button>
+            </div>
         </div>
 
         <div v-if="loading" class="text-center py-5">
@@ -196,8 +199,9 @@ const lihatSuratJalan = (tx) => {
         </div>
 
         <div v-else-if="item" class="row g-4">
-            
-            <div class="col-lg-7 col-xl-8">
+
+            <!-- Foto + Info Spesifikasi (Desktop: kiri. Mobile: setelah panel status) -->
+            <div class="col-lg-7 col-xl-8 order-lg-first">
                 <div class="card border-0 shadow-sm h-100 overflow-hidden">
                     <div class="row g-0 h-100">
                         <div class="col-md-5 bg-light d-flex align-items-center justify-content-center p-3 border-end">
@@ -220,37 +224,37 @@ const lihatSuratJalan = (tx) => {
                                 
                                 <hr class="my-3">
                                 
-                                <!-- [DIPERBARUI] Grid Spesifikasi Menampilkan Seluruh Data Lengkap -->
+                                <!-- [DIPERBARUI] Grid Spesifikasi Menampilkan Seluruh Data Lengkap (1 kolom di mobile) -->
                                 <div class="row g-3">
-                                    <div class="col-6">
+                                    <div class="col-12 col-sm-6">
                                         <small class="text-muted d-block fw-bold">Kode Unit</small>
                                         <span class="fw-bold text-dark">{{ item.kode_unit || '-' }}</span>
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col-12 col-sm-6">
                                         <small class="text-muted d-block fw-bold">Kategori</small>
                                         <span class="fw-bold text-dark">{{ item.kategori_alat || '-' }}</span>
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col-12 col-sm-6">
                                         <small class="text-muted d-block fw-bold">Merek / Tipe</small>
                                         <span class="fw-bold text-dark">{{ item.merk_alat || '-' }}</span>
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col-12 col-sm-6">
                                         <small class="text-muted d-block fw-bold">No. Mesin</small>
                                         <span class="fw-bold text-dark">{{ item.nomor_mesin || '-' }}</span>
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col-12 col-sm-6">
                                         <small class="text-muted d-block fw-bold">No. Rangka / Seri</small>
                                         <span class="fw-bold text-dark">{{ item.nomor_seri || '-' }}</span>
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col-12 col-sm-6">
                                         <small class="text-muted d-block fw-bold">Tahun Penerimaan</small>
                                         <span class="fw-bold text-dark">{{ item.tahun_penerimaan || 'Belum Diatur' }}</span>
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col-12 col-sm-6">
                                         <small class="text-muted d-block fw-bold">Kapasitas Lahan</small>
                                         <span class="fw-bold text-dark">{{ item.kapasitas_lahan || '-' }} Ha/Hari</span>
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col-12 col-sm-6">
                                         <small class="text-muted d-block fw-bold">Lebar Implemen</small>
                                         <span class="fw-bold text-dark">{{ item.lebar_implemen }} Meter</span>
                                     </div>
@@ -266,7 +270,8 @@ const lihatSuratJalan = (tx) => {
                 </div>
             </div>
 
-            <div class="col-lg-5 col-xl-4">
+            <!-- Panel Status (Desktop: kanan. Mobile: paling atas agar status langsung terlihat) -->
+            <div class="col-lg-5 col-xl-4 order-first order-lg-last">
                 
                 <div v-if="item.status_ketersediaan === 'Tersedia di Balai'" class="card border-0 shadow-sm h-100 bg-success bg-opacity-10 border border-success">
                     <div class="card-body text-center d-flex flex-column justify-content-center p-4">
@@ -274,13 +279,13 @@ const lihatSuratJalan = (tx) => {
                         <h4 class="fw-bold text-success mt-3 mb-1">TERSEDIA DI BALAI</h4>
                         <p class="text-muted small mb-4">Alat ini siap beroperasi dan dapat dipinjamkan ke kelompok tani.</p>
                         
-                        <button v-if="userRole === 'mektan'" @click="handlePinjamkan" class="btn btn-success fw-bold py-2 w-100 shadow-sm mt-auto">
+                        <button v-if="userRole === 'mektan'" @click="handlePinjamkan" class="btn btn-success fw-bold py-2 w-100 shadow-sm mt-auto touch-target">
                             <i class="bi bi-file-earmark-plus"></i> Keluarkan Surat Pinjam
                         </button>
                     </div>
                 </div>
 
-                <div v-else-if="item.status_ketersediaan === 'Sedang Dipinjam'" class="card border-0 shadow-sm h-100 border border-warning" style="background-color: #fffdf2;">
+                <div v-else-if="item.status_ketersediaan === 'Sedang Dipinjam'" class="card border-0 shadow-sm h-100 border border-warning dipinjam-tint">
                     <div class="card-header bg-warning text-dark py-3">
                         <h6 class="mb-0 fw-bold text-center"><i class="bi bi-exclamation-triangle-fill me-2"></i>ALAT SEDANG DIPINJAM</h6>
                     </div>
@@ -318,11 +323,11 @@ const lihatSuratJalan = (tx) => {
                                 </div>
                             </div>
                             
-                            <button v-if="userRole" @click="lihatSuratJalan(transaksiAktif)" class="btn btn-outline-primary w-100 fw-bold py-2 shadow-sm mb-2">
+                            <button v-if="userRole" @click="lihatSuratJalan(transaksiAktif)" class="btn btn-outline-primary w-100 fw-bold py-2 shadow-sm mb-2 touch-target">
                                 <i class="bi bi-qr-code-scan"></i> Lihat Surat Jalan (QR)
                             </button>
                             
-                            <button v-if="userRole === 'mektan'" @click="handleSelesaikan" class="btn btn-warning w-100 fw-bold py-2 shadow-sm mt-auto">
+                            <button v-if="userRole === 'mektan'" @click="handleSelesaikan" class="btn btn-warning w-100 fw-bold py-2 shadow-sm mt-auto touch-target">
                                 <i class="bi bi-check-circle-fill"></i> Alat Selesai & Kembali
                             </button>
                         </div>

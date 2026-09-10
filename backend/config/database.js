@@ -14,7 +14,7 @@ db.connect((err, client, release) => {
     if (err) {
         console.error('❌ Gagal koneksi ke database PostgreSQL:', err.stack);
     } else {
-        console.log('✅ Berhasil koneksi ke database publik (Neon.tech)');
+        console.log('✅ Berhasil koneksi ke database PostgreSQL lokal');
         release(); 
     }
 });

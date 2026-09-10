@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useRoute, useRouter } from 'vue-router';
-import Swal from 'sweetalert2';
+import { loading, success, error } from '../../utils/feedback';
 
 const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL;
 const route = useRoute();
@@ -61,7 +61,7 @@ const fetchDetail = async () => {
     };
     gambarLama.value = data.gambar;
   } catch (error) {
-    Swal.fire('Error', 'Gagal mengambil data aset.', 'error');
+    error('Error', 'Gagal mengambil data aset.');
     router.push('/aset');
   } finally {
     isLoading.value = false;
@@ -84,7 +84,7 @@ const hapusFoto = () => {
 
 const submitForm = async () => {
   isSubmitting.value = true;
-  Swal.fire({ title: 'Memperbarui Aset...', text: 'Menyinkronkan data ke server.', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+  loading('Memperbarui Aset...', 'Menyinkronkan data ke server.');
 
   try {
     const formData = new FormData();
@@ -109,11 +109,11 @@ const submitForm = async () => {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
 
-    Swal.fire({ icon: 'success', title: 'Diperbarui!', text: 'Data aset berhasil diperbarui.', confirmButtonColor: '#198754' })
+    success('Diperbarui!', 'Data aset berhasil diperbarui.')
     .then(() => router.replace(`/aset/${id}`));
 
   } catch (error) {
-    Swal.fire('Gagal!', 'Terjadi kesalahan saat menyimpan perubahan.', 'error');
+    error('Gagal!', 'Terjadi kesalahan saat menyimpan perubahan.');
   } finally {
     isSubmitting.value = false;
   }
@@ -124,9 +124,11 @@ onMounted(() => { fetchDetail(); });
 
 <template>
   <div class="container-fluid pb-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="page-header">
       <h2 class="fw-bold text-dark mb-0">✏️ Edit Aset</h2>
-      <button @click="router.back()" class="btn btn-outline-secondary shadow-sm"><i class="bi bi-arrow-left"></i> Kembali</button>
+      <div class="page-header-actions">
+        <button @click="router.back()" class="btn btn-outline-secondary shadow-sm touch-target"><i class="bi bi-arrow-left"></i> Kembali</button>
+      </div>
     </div>
 
     <div v-if="isLoading" class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted fw-bold">Memuat konfigurasi alat...</p></div>
@@ -232,7 +234,7 @@ onMounted(() => { fetchDetail(); });
               <div class="mb-3">
                 <label class="form-label">Foto Alat <span class="text-muted small fw-normal">(Biarkan kosong jika tak diganti)</span></label>
                 <input ref="fileInputRef" @change="handleFileUpload" type="file" class="form-control" accept="image/*">
-                <div class="mt-3 text-center rounded p-3 position-relative" style="border: 2px dashed #dee2e6; background-color: #f8f9fa;">
+                <div class="mt-3 text-center rounded p-3 position-relative upload-box" style="border: 2px dashed #dee2e6; background-color: #f8f9fa;">
                   <span class="badge bg-secondary position-absolute top-0 start-0 m-2">Preview Gambar</span>
                   <div v-if="previewGambar" class="position-relative d-inline-block mt-3">
                       <img :src="previewGambar" class="img-fluid rounded shadow-sm" style="max-height: 160px;">
@@ -249,9 +251,9 @@ onMounted(() => { fetchDetail(); });
               </div>
             </div>
           </div>
-          <div class="d-flex justify-content-end mt-4 pt-3 border-top bg-white">
-            <button type="button" @click="router.back()" class="btn btn-light border me-2 px-4 text-muted">Batal</button>
-            <button type="submit" class="btn btn-primary px-5 fw-bold shadow-sm" :disabled="isSubmitting">
+          <div class="form-footer d-flex justify-content-end mt-4 pt-3 border-top bg-white">
+            <button type="button" @click="router.back()" class="btn btn-light border me-2 px-4 text-muted form-footer-btn">Batal</button>
+            <button type="submit" class="btn btn-primary px-5 fw-bold shadow-sm form-footer-btn" :disabled="isSubmitting">
               <span v-if="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>{{ isSubmitting ? 'Menyimpan...' : 'Simpan Perubahan' }}
             </button>
           </div>

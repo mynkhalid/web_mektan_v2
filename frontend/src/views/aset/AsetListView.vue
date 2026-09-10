@@ -1,8 +1,9 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
+import { loading as showLoadingAlert, success, error } from '../../utils/feedback';
 import mqtt from 'mqtt';
 
 const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL;
@@ -16,6 +17,26 @@ const router = useRouter();
 const items = ref([]);
 const loading = ref(true);
 const userRole = ref('');
+
+// P1: Filter cepat + indikator geser tabel
+const searchQuery = ref('');
+const tableScroll = ref({ left: false, right: true });
+
+const filteredItems = computed(() => {
+    const q = searchQuery.value.trim().toLowerCase();
+    if (!q) return items.value;
+    return items.value.filter(item =>
+        (item.nama_alat || '').toLowerCase().includes(q) ||
+        (item.kode_perangkat || '').toLowerCase().includes(q) ||
+        (item.nomor_seri || '').toLowerCase().includes(q)
+    );
+});
+
+const onTableScroll = (e) => {
+    const el = e.target;
+    tableScroll.value.left = el.scrollLeft > 24;
+    tableScroll.value.right = el.scrollLeft + el.clientWidth < el.scrollWidth - 24;
+};
 
 let mqttClient = null;
 
@@ -85,8 +106,8 @@ const ajukanPinjaman = async (item) => {
                 </div>
                 
                 <div class="row g-2 mb-2">
-                    <div class="col-6"><label class="fw-bold small">Rencana Mulai <span class="text-danger">*</span></label><input type="date" id="swal-mulai" class="form-control form-control-sm" required></div>
-                    <div class="col-6"><label class="fw-bold small">Rencana Selesai <span class="text-danger">*</span></label><input type="date" id="swal-akhir" class="form-control form-control-sm" required></div>
+                    <div class="col-12 col-sm-6"><label class="fw-bold small">Rencana Mulai <span class="text-danger">*</span></label><input type="date" id="swal-mulai" class="form-control form-control-sm" required></div>
+                    <div class="col-12 col-sm-6"><label class="fw-bold small">Rencana Selesai <span class="text-danger">*</span></label><input type="date" id="swal-akhir" class="form-control form-control-sm" required></div>
                 </div>
                 <hr class="my-2">
                 
@@ -101,8 +122,8 @@ const ajukanPinjaman = async (item) => {
                 </div>
 
                 <div class="row g-2 mb-2">
-                    <div class="col-6"><label class="fw-bold small text-primary">Jabatan</label><input type="text" id="swal-jabatan" class="form-control form-control-sm" placeholder="Misal: Operator"></div>
-                    <div class="col-6"><label class="fw-bold small text-primary">WhatsApp Aktif <span class="text-danger">*</span></label><input type="text" id="swal-kontak" class="form-control form-control-sm" placeholder="08..." required></div>
+                    <div class="col-12 col-sm-6"><label class="fw-bold small text-primary">Jabatan</label><input type="text" id="swal-jabatan" class="form-control form-control-sm" placeholder="Misal: Operator"></div>
+                    <div class="col-12 col-sm-6"><label class="fw-bold small text-primary">WhatsApp Aktif <span class="text-danger">*</span></label><input type="text" id="swal-kontak" class="form-control form-control-sm" placeholder="08..." required></div>
                 </div>
                 
                 <hr class="my-2">
@@ -112,11 +133,11 @@ const ajukanPinjaman = async (item) => {
                         <label class="fw-bold small text-success">Kabupaten/Kota (Jawa Barat) <span class="text-danger">*</span></label>
                         <select id="swal-kab" class="form-select form-select-sm border-success"><option value="">Memuat data...</option></select>
                     </div>
-                    <div class="col-6">
+                    <div class="col-12 col-sm-6">
                         <label class="fw-bold small text-success">Kecamatan <span class="text-danger">*</span></label>
                         <select id="swal-kec" class="form-select form-select-sm border-success" disabled><option value="">Pilih Kab/Kota dahulu</option></select>
                     </div>
-                    <div class="col-6">
+                    <div class="col-12 col-sm-6">
                         <label class="fw-bold small text-success">Desa/Kelurahan Utama <span class="text-danger">*</span></label>
                         <select id="swal-desa" class="form-select form-select-sm border-success" disabled><option value="">Pilih Kecamatan dahulu</option></select>
                         
@@ -244,11 +265,11 @@ const ajukanPinjaman = async (item) => {
 
     if (formValues) {
         try {
-            Swal.fire({ title: 'Mengirim Pengajuan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            showLoadingAlert('Mengirim Pengajuan...', '');
             await axios.post(`${import.meta.env.VITE_API_BASE_URL}/pengajuan/public`, formValues);
-            Swal.fire('Terkirim!', 'Pengajuan Anda berhasil masuk antrean. Kami akan segera menghubungi nomor WA Anda.', 'success');
+            success('Terkirim!', 'Pengajuan Anda berhasil masuk antrean. Kami akan segera menghubungi nomor WA Anda.');
         } catch (error) {
-            Swal.fire('Gagal', error.response?.data?.message || 'Terjadi kesalahan server.', 'error');
+            error('Gagal', error.response?.data?.message || 'Terjadi kesalahan server.');
         }
     }
 };
@@ -267,10 +288,10 @@ const deleteItem = async (id) => {
     if (confirm.isConfirmed) {
         try {
             await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/alsintan/${id}`);
-            Swal.fire('Terhapus!', 'Data aset telah dihapus.', 'success');
+            success('Terhapus!', 'Data aset telah dihapus.');
             fetchData();
         } catch (error) {
-            Swal.fire('Error', 'Gagal menghapus aset.', 'error');
+            error('Error', 'Gagal menghapus aset.');
         }
     }
 };
@@ -290,14 +311,13 @@ onUnmounted(() => {
 <template>
     <div class="container-fluid pb-4">
         
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="page-header">
             <div>
                 <h2 class="fw-bold text-dark mb-0">Manajemen & Katalog Aset</h2>
                 <small class="text-muted">Cek ketersediaan inventaris dan status operasional alsintan</small>
             </div>
             
-            <!-- Hanya 'mektan' yang bisa melihat Cek Antrean dan Tambah Aset -->
-            <div v-if="userRole === 'mektan'" class="d-flex gap-2">
+            <div v-if="userRole === 'mektan'" class="page-header-actions">
                 <button @click="router.push('/antrean')" class="btn btn-warning fw-bold shadow-sm">
                     <i class="bi bi-inboxes-fill"></i> Cek Antrean Masuk
                 </button>
@@ -307,15 +327,123 @@ onUnmounted(() => {
             </div>
         </div>
 
+        <!-- P1: Pencarian cepat -->
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+            <div class="input-group flex-grow-1" style="max-width: 420px;">
+                <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
+                <input v-model="searchQuery" type="text" class="form-control" placeholder="Cari nama alat / kode / no. seri...">
+            </div>
+            <small class="text-muted fw-bold">{{ filteredItems.length }} dari {{ items.length }} unit</small>
+        </div>
+
         <div v-if="loading" class="text-center py-5 my-5">
             <div class="spinner-border text-primary" role="status"></div>
             <p class="mt-2 text-muted fw-bold">Memuat inventaris...</p>
         </div>
 
-        <div v-else class="card border-0 shadow-sm overflow-hidden">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+        <!-- [MOBILE] Semua info tampil utuh tanpa scroll horizontal (seperti Beranda) -->
+        <div v-if="!loading" class="d-md-none">
+            <div v-for="item in filteredItems" :key="'card' + item.alsintan_id"
+                 class="card border-0 shadow-sm mb-3 overflow-hidden">
+                <div class="card-body p-3">
+                    <div class="d-flex gap-3">
+                        <div class="position-relative">
+                            <img :src="item.gambar && item.gambar.startsWith('http') ? item.gambar : `${IMAGE_BASE_URL}/${item.gambar}`"
+                                 class="rounded object-fit-cover shadow-sm transition-img"
+                                 :class="{'grayscale-dim': item.status_ketersediaan === 'Sedang Dipinjam'}"
+                                 style="width: 64px; height: 64px;"
+                                 @error="$event.target.src='https://via.placeholder.com/150'">
+                            <span class="position-absolute top-0 start-100 translate-middle p-2 border border-2 border-white rounded-circle shadow-sm"
+                                  :class="item.status_ketersediaan === 'Tersedia di Balai' ? 'bg-success' : 'bg-warning'">
+                            </span>
+                        </div>
+                        <div class="flex-grow-1" style="min-width: 0;">
+                            <h6 class="fw-bold text-dark mb-1" :class="{'text-muted': item.status_ketersediaan === 'Sedang Dipinjam'}">
+                                {{ item.nama_alat }}
+                            </h6>
+                            <div class="d-flex flex-wrap gap-2 align-items-center mb-1">
+                                <span v-if="item.status_ketersediaan === 'Tersedia di Balai'" class="badge bg-success bg-opacity-10 text-success border border-success" style="font-size: 0.65rem;">
+                                    <i class="bi bi-building-check me-1"></i>TERSEDIA
+                                </span>
+                                <span v-else-if="item.status_ketersediaan === 'Sedang Dipinjam'" class="badge bg-warning bg-opacity-10 text-warning-emphasis border border-warning" style="font-size: 0.65rem;">
+                                    <i class="bi bi-signpost-2-fill me-1"></i>DIPINJAM
+                                </span>
+                                <span v-else class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary" style="font-size: 0.65rem;">
+                                    {{ item.status_ketersediaan?.toUpperCase() || 'MAINTENANCE' }}
+                                </span>
+                                <span class="badge bg-light text-muted border border-secondary" style="font-size: 0.65rem;">
+                                    <i class="bi bi-wrench-adjustable me-1"></i>{{ item.kondisi_fisik || 'Baik' }}
+                                </span>
+                            </div>
+                            <small class="text-muted d-block" style="font-size: 0.75rem;">
+                                {{ item.kategori_alat }} • {{ item.merk_alat || '-' }}
+                            </small>
+                        </div>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge border border-primary text-primary px-2 py-1">
+                            <i class="bi bi-qr-code me-1"></i>{{ item.kode_perangkat }}
+                        </span>
+                        <span class="badge bg-light text-muted border border-secondary px-2 py-1">
+                            <i class="bi bi-cpu me-1"></i>SN: {{ item.nomor_seri || '-' }}
+                        </span>
+                        <span class="badge bg-light text-muted border border-secondary px-2 py-1">
+                            <i class="bi bi-rulers me-1"></i>{{ item.kapasitas_lahan || '-' }} Ha/Hari
+                        </span>
+                        <span class="badge bg-light text-muted border border-secondary px-2 py-1">
+                            <i class="bi bi-speedometer2 me-1"></i>{{ (parseFloat(item.total_jarak_kerja || 0) / 1000).toFixed(2) }} Km
+                        </span>
+                    </div>
+
+                    <div class="d-flex flex-column gap-1 mt-2">
+                        <span class="badge w-100 py-2 text-center" :class="getTractorClass(item.status_mesin)">
+                            <i class="bi bi-power me-1"></i> MESIN: {{ item.status_mesin || 'OFF' }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-white border-top p-3">
+                    <div v-if="userRole === 'mektan'" class="row g-2">
+                        <div class="col-6">
+                            <button @click="goToDetail(item.alsintan_id)" class="btn btn-sm btn-outline-info btn-aksi w-100"><i class="bi bi-info-circle me-1"></i>Detail</button>
+                        </div>
+                        <div class="col-6">
+                            <button @click="goToMonitoring(item.alsintan_id)" class="btn btn-sm btn-outline-primary btn-aksi w-100"><i class="bi bi-geo-alt-fill me-1"></i>Peta</button>
+                        </div>
+                        <div class="col-6">
+                            <button @click="goToEdit(item.alsintan_id)" class="btn btn-sm btn-outline-warning btn-aksi w-100"><i class="bi bi-pencil-square me-1"></i>Edit</button>
+                        </div>
+                        <div class="col-6">
+                            <button @click="deleteItem(item.alsintan_id)" class="btn btn-sm btn-outline-danger btn-aksi w-100"><i class="bi bi-trash me-1"></i>Hapus</button>
+                        </div>
+                    </div>
+
+                    <div v-else-if="['upja', 'operator'].includes(userRole)" class="row g-2">
+                        <div class="col-6">
+                            <button @click="goToDetail(item.alsintan_id)" class="btn btn-sm btn-outline-info btn-aksi w-100"><i class="bi bi-info-circle me-1"></i>Detail</button>
+                        </div>
+                        <div class="col-6">
+                            <button @click="goToMonitoring(item.alsintan_id)" class="btn btn-sm btn-outline-primary btn-aksi w-100"><i class="bi bi-geo-alt-fill me-1"></i>Peta</button>
+                        </div>
+                        <div v-if="item.status_ketersediaan === 'Tersedia di Balai' && userRole === 'upja'" class="col-12">
+                            <button @click="ajukanPinjaman(item)" class="btn btn-sm btn-success btn-aksi w-100"><i class="bi bi-calendar-plus-fill me-1"></i>Booking Alat</button>
+                        </div>
+                    </div>
+
+                    <div v-else>
+                        <button @click="goToDetail(item.alsintan_id)" class="btn btn-sm btn-outline-info btn-aksi w-100"><i class="bi bi-info-circle me-1"></i>Lihat Detail</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="!loading" class="card border-0 shadow-sm overflow-hidden d-none d-md-block">
+            <div class="card-body p-0 position-relative">
+                <div class="aset-table-wrap" @scroll="onTableScroll">
+                    <table class="table table-hover align-middle mb-0 aset-table">
                         <thead class="bg-light text-muted small text-uppercase" style="letter-spacing: 0.5px;">
                             <tr>
                                 <th class="ps-4 py-3">Aset & Ketersediaan</th>
@@ -326,7 +454,7 @@ onUnmounted(() => {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="item in items" :key="item.alsintan_id" :class="{'bg-dipinjam': item.status_ketersediaan === 'Sedang Dipinjam'}">
+                            <tr v-for="item in filteredItems" :key="item.alsintan_id" :class="{'bg-dipinjam': item.status_ketersediaan === 'Sedang Dipinjam'}">
                                 
                                 <td class="ps-4 py-3">
                                     <div class="d-flex align-items-center">
@@ -396,28 +524,28 @@ onUnmounted(() => {
                                 <td class="text-center pe-4">
                                     
                                     <!-- Jika Role = Mektan (Akses Penuh tanpa Booking) -->
-                                    <div v-if="userRole === 'mektan'" class="btn-group">
-                                        <button @click="goToDetail(item.alsintan_id)" class="btn btn-sm btn-outline-info" title="Detail Administrasi"><i class="bi bi-info-circle"></i></button>
-                                        <button @click="goToMonitoring(item.alsintan_id)" class="btn btn-sm btn-outline-primary" title="Kendali Peta & Argo"><i class="bi bi-geo-alt-fill"></i></button>
-                                        <button @click="goToEdit(item.alsintan_id)" class="btn btn-sm btn-outline-warning" title="Edit Data"><i class="bi bi-pencil-square"></i></button>
-                                        <button @click="deleteItem(item.alsintan_id)" class="btn btn-sm btn-outline-danger" title="Hapus Permanen"><i class="bi bi-trash"></i></button>
+                                    <div v-if="userRole === 'mektan'" class="btn-group flex-wrap">
+                                        <button @click="goToDetail(item.alsintan_id)" class="btn btn-sm btn-outline-info btn-aksi" title="Detail Administrasi"><i class="bi bi-info-circle"></i></button>
+                                        <button @click="goToMonitoring(item.alsintan_id)" class="btn btn-sm btn-outline-primary btn-aksi" title="Kendali Peta & Argo"><i class="bi bi-geo-alt-fill"></i></button>
+                                        <button @click="goToEdit(item.alsintan_id)" class="btn btn-sm btn-outline-warning btn-aksi" title="Edit Data"><i class="bi bi-pencil-square"></i></button>
+                                        <button @click="deleteItem(item.alsintan_id)" class="btn btn-sm btn-outline-danger btn-aksi" title="Hapus Permanen"><i class="bi bi-trash"></i></button>
                                     </div>
 
                                     <!-- Jika Role = UPJA / Operator (Fokus Operasional) -->
                                     <div v-else-if="['upja', 'operator'].includes(userRole)">
-                                        <div class="btn-group">
-                                            <button @click="goToDetail(item.alsintan_id)" class="btn btn-sm btn-outline-info" title="Detail Alat"><i class="bi bi-info-circle"></i></button>
-                                            <button @click="goToMonitoring(item.alsintan_id)" class="btn btn-sm btn-outline-primary" title="Kendali Peta & Argo"><i class="bi bi-geo-alt-fill"></i></button>
+                                        <div class="btn-group flex-wrap">
+                                            <button @click="goToDetail(item.alsintan_id)" class="btn btn-sm btn-outline-info btn-aksi" title="Detail Alat"><i class="bi bi-info-circle"></i></button>
+                                            <button @click="goToMonitoring(item.alsintan_id)" class="btn btn-sm btn-outline-primary btn-aksi" title="Kendali Peta & Argo"><i class="bi bi-geo-alt-fill"></i></button>
                                         </div>
                                         <!-- HANYA UPJA YANG BISA MELIHAT TOMBOL BOOKING -->
-                                        <button v-if="item.status_ketersediaan === 'Tersedia di Balai' && userRole === 'upja'" @click="ajukanPinjaman(item)" class="btn btn-sm btn-success fw-bold shadow-sm ms-2" title="Booking Alat Ini">
+                                        <button v-if="item.status_ketersediaan === 'Tersedia di Balai' && userRole === 'upja'" @click="ajukanPinjaman(item)" class="btn btn-sm btn-success fw-bold shadow-sm btn-aksi ms-2" title="Booking Alat Ini">
                                             <i class="bi bi-calendar-plus-fill"></i> Booking
                                         </button>
                                     </div>
 
                                     <!-- Jika Guest / Publik (Tanpa Login) -->
                                     <div v-else>
-                                        <button @click="goToDetail(item.alsintan_id)" class="btn btn-sm btn-outline-info" title="Lihat Spesifikasi">
+                                        <button @click="goToDetail(item.alsintan_id)" class="btn btn-sm btn-outline-info btn-aksi" title="Lihat Spesifikasi">
                                             <i class="bi bi-info-circle"></i> Detail
                                         </button>
                                         <!-- Tombol Booking dihilangkan sepenuhnya dari publik -->
@@ -429,11 +557,15 @@ onUnmounted(() => {
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </div>
 
-        <div class="text-center mt-5 pt-3 border-top text-muted" style="font-size: 0.75rem; letter-spacing: 0.5px;">
-            &copy; 2026 Balai Pengembangan Mekanisasi Pertanian - Pemprov Jawa Barat. Versi 1.1.0
+                <!-- Indikator visual: geser tabel -->
+                <div class="aset-scroll-edge" :class="{ 'show': tableScroll.right }">
+                    <i class="bi bi-chevron-right"></i>
+                </div>
+                <div v-if="tableScroll.right" class="aset-scroll-hint d-md-none">
+                    <i class="bi bi-arrow-left-right me-1"></i> Geser tabel untuk kolom lainnya
+                </div>
+            </div>
         </div>
 
     </div>
@@ -449,4 +581,74 @@ onUnmounted(() => {
 .transition-img { transition: all 0.3s ease; }
 .grayscale-dim { filter: grayscale(100%) contrast(80%); opacity: 0.6; }
 .bg-dipinjam td { background-color: #fffff8 !important; }
+
+/* ── Tabel: scroll horizontal terkontrol + kolom sticky ── */
+.aset-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+}
+
+.aset-table {
+    min-width: 780px;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/* Kolom pertama sticky kiri dengan background solid */
+.aset-table thead th:first-child,
+.aset-table tbody td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background-color: #ffffff;
+    box-shadow: 1px 0 0 rgba(0, 0, 0, 0.04);
+}
+.aset-table thead th:first-child { z-index: 3; background-color: #f8f9fa; }
+.aset-table tbody tr.bg-dipinjam td:first-child { background-color: #fffff8 !important; }
+.aset-table tbody tr:hover td:first-child { background-color: #f8f9fa; }
+.aset-table tbody tr.bg-dipinjam:hover td:first-child { background-color: #fffff8 !important; }
+
+/* Indikator kanan saat tabel masih punya konten di luar layar */
+.aset-scroll-edge {
+    position: absolute;
+    top: 0; bottom: 8px; right: 0;
+    width: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 6px;
+    background: linear-gradient(to right, rgba(248,250,252,0), rgba(248,250,252,0.85));
+    color: #94a3b8;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.aset-scroll-edge.show { opacity: 1; }
+
+.aset-scroll-hint {
+    position: absolute;
+    bottom: 10px; right: 10px;
+    z-index: 3;
+    background: #1e293b;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    pointer-events: none;
+}
+
+/* Tombol aksi: target sentuh nyaman */
+.btn-aksi {
+    min-width: 40px;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+@media (max-width: 767.98px) {
+    .btn-aksi { min-width: 44px; min-height: 44px; }
+}
 </style>

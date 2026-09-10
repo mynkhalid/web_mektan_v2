@@ -1,10 +1,11 @@
 <script setup>
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import Swal from 'sweetalert2';
+import { success } from '../utils/feedback';
 import mqtt from 'mqtt';
 
 const MQTT_HOST = import.meta.env.VITE_MQTT_HOST;
@@ -369,14 +370,15 @@ const resetArgo = async () => {
             }
             
             if (activeTab.value === 'LIVE') renderPolyline();
-            Swal.fire('Sesi Baru Dimulai!', '', 'success');
+            success('Sesi Baru Dimulai!', '');
         } catch (error) {}
     }
 };
 
 watch(activeTab, (newTab) => {
     if (newTab === 'HISTORY') fetchHistoryByDate();
-    else renderPolyline(); 
+    else renderPolyline();
+    nextTick(() => { if (map) map.invalidateSize(); });
 });
 
 watch(historyDate, () => {
@@ -400,12 +402,12 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="container-fluid d-flex flex-column pb-1" style="height: calc(100vh - 4.5rem);">
+  <div class="container-fluid d-flex flex-column pb-1 detail-page">
     
-    <div class="d-flex justify-content-between align-items-center mb-2">
-      <div>
-        <h4 class="fw-bold mb-0">📡 Dashboard Kendali: {{ infoAlat.nama_alat }}</h4>
-        <div class="d-flex align-items-center mt-1 gap-2">
+    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+      <div class="flex-grow-1 min-width-0">
+        <h4 class="fw-bold mb-0 detail-title">📡 Dashboard Kendali: {{ infoAlat.nama_alat }}</h4>
+        <div class="d-flex align-items-center mt-1 gap-2 flex-wrap">
             <span class="badge border border-secondary text-secondary">{{ infoAlat.kode_perangkat }}</span>
             <span class="badge" :class="statusIot === 'ON' ? 'bg-success' : 'bg-danger text-white'">
                 <i class="bi bi-broadcast"></i> IoT: {{ statusIot === 'ON' ? 'ONLINE' : 'OFFLINE' }}
@@ -415,38 +417,36 @@ onUnmounted(() => {
             </span>
         </div>
       </div>
-      <button @click="router.back()" class="btn btn-outline-secondary btn-sm shadow-sm">
-          <i class="bi bi-arrow-left"></i> Kembali ke Radar
+      <button @click="router.back()" class="btn btn-outline-secondary btn-sm shadow-sm touch-target flex-shrink-0">
+          <i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Kembali ke Radar</span><span class="d-sm-none">Kembali</span>
       </button>
     </div>
 
-    <div class="row g-3 flex-grow-1 overflow-hidden pb-2">
+    <div class="row g-3 flex-grow-1 overflow-hidden pb-2 detail-row">
       
       <!-- SISI KIRI (PETA) -->
-      <div class="col-lg-8 h-100">
-        <div class="card shadow-sm border-0 h-100 position-relative overflow-hidden">
+      <div class="col-lg-8 h-100 detail-map-col">
+        <div class="card shadow-sm border-0 h-100 position-relative overflow-hidden detail-map-card">
           
-          <div class="position-absolute top-0 start-50 translate-middle-x mt-3 z-3 bg-white shadow-sm p-1 d-flex gap-1 border">
-              <button class="btn btn-sm rounded-pill fw-bold" 
-                      style="min-width: 150px; padding-block: 8px;"
+          <div class="position-absolute top-0 start-50 translate-middle-x mt-3 z-3 bg-white shadow-sm p-1 d-flex gap-1 border toggle-tabs">
+              <button class="btn btn-sm rounded-pill fw-bold touch-target toggle-tab-btn"
                       :class="activeTab === 'LIVE' ? 'btn-primary' : 'btn-light text-muted'"
-                      @click="activeTab = 'LIVE'"><i class="bi bi-broadcast"></i> Live Mode</button>
-              <button class="btn btn-sm rounded-pill fw-bold" 
-                      style="min-width: 150px; padding-block: 8px;"
+                      @click="activeTab = 'LIVE'"><i class="bi bi-broadcast"></i> <span class="d-none d-sm-inline">Live Mode</span><span class="d-sm-none">Live</span></button>
+              <button class="btn btn-sm rounded-pill fw-bold touch-target toggle-tab-btn"
                       :class="activeTab === 'HISTORY' ? 'btn-danger' : 'btn-light text-muted'"
-                      @click="activeTab = 'HISTORY'"><i class="bi bi-clock-history"></i> Riwayat Lintasan</button>
+                      @click="activeTab = 'HISTORY'"><i class="bi bi-clock-history"></i> <span class="d-none d-sm-inline">Riwayat Lintasan</span><span class="d-sm-none">Riwayat</span></button>
           </div>
 
-          <div class="position-absolute bottom-0 start-0 m-3 z-3 bg-white p-2 rounded shadow-sm border" style="font-size: 11px;">
-              <div class="fw-bold mb-1 text-muted">Legenda Peta:</div>
-              <div class="d-flex align-items-center gap-2 mb-1">
-                  <div style="width: 20px; height: 4px; background-color: var(--bs-blue);" v-if="activeTab === 'LIVE'"></div>
-                  <div style="width: 20px; height: 4px; background-color: var(--bs-danger);" v-else></div>
+          <div class="position-absolute bottom-0 start-0 m-2 z-3 bg-white p-1 px-2 rounded-3 shadow-sm border map-legend">
+              <div class="fw-bold text-muted mb-1">Legenda Peta</div>
+              <div class="d-flex align-items-center gap-1 mb-1">
+                  <div style="width: 14px; height: 3px; background-color: var(--bs-blue); border-radius: 2px;" v-if="activeTab === 'LIVE'"></div>
+                  <div style="width: 14px; height: 3px; background-color: var(--bs-danger); border-radius: 2px;" v-else></div>
                   <span>Kerja (Mesin ON)</span>
               </div>
-              <div class="d-flex align-items-center gap-2">
-                  <div style="width: 20px; height: 4px; border-bottom: 3px dashed #6c757d;"></div>
-                  <span class="text-muted">Ditarik/Parkir (Mesin OFF)</span>
+              <div class="d-flex align-items-center gap-1">
+                  <div style="width: 14px; height: 3px; border-bottom: 2px dashed #6c757d;"></div>
+                  <span class="text-muted">Ditarik/Parkir</span>
               </div>
           </div>
           
@@ -455,7 +455,7 @@ onUnmounted(() => {
       </div>
 
       <!-- SISI KANAN (PANEL TELEMETRI) -->
-      <div class="col-lg-4 h-100">
+      <div class="col-lg-4 h-100 detail-tele-col">
         <div class="card border-0 shadow-sm h-100 d-flex flex-column">
           <div class="card-header py-3" :class="activeTab === 'LIVE' ? 'bg-primary text-white' : 'bg-danger text-white'">
              <h6 class="mb-0 fw-bold text-center">
@@ -558,10 +558,6 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div class="text-center mt-2 text-muted flex-shrink-0" style="font-size: 0.75rem; letter-spacing: 0.5px;">
-        &copy; 2026 Balai Pengembangan Mekanisasi Pertanian - Pemprov Jawa Barat. Versi 1.1.0
-    </div>
-
   </div>
 </template>
 
@@ -570,9 +566,40 @@ onUnmounted(() => {
 @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 .z-3 { z-index: 1000 !important; }
 
-/* Kustomisasi Scrollbar */
 .custom-scrollbar::-webkit-scrollbar { width: 6px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #dee2e6; border-radius: 4px; }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #adb5bd; }
+
+.min-width-0 { min-width: 0; }
+
+.map-legend { font-size: 9.5px; }
+
+.detail-page {
+    height: calc(100vh - var(--topbar-height) - 3rem);
+    display: flex;
+    flex-direction: column;
+}
+
+@media (max-width: 767.98px) {
+  .detail-page { height: auto; }
+
+  .detail-title { font-size: 1rem; }
+
+  .detail-row { overflow: visible; }
+
+  .detail-map-col,
+  .detail-tele-col { height: auto !important; }
+
+  .detail-map-card { height: 40vh !important; min-height: 320px; }
+
+  .detail-tele-col .card-body { overflow: visible; }
+
+  .toggle-tab-btn {
+    min-height: 40px;
+    min-width: 0;
+    padding-inline: 14px;
+    font-size: 12px;
+  }
+}
 </style>

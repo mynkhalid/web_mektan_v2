@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { loading as showLoadingAlert, success, error } from '../../utils/feedback';
 
 const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL;
 const antrean = ref([]);
@@ -58,7 +59,7 @@ const handleACC = async (item) => {
 
     if (formValues) {
         try {
-            Swal.fire({ title: 'Memproses Surat Jalan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            showLoadingAlert('Memproses Surat Jalan...', '');
             
             await axios.post(`${import.meta.env.VITE_API_BASE_URL}/pengajuan/admin/acc/${item.id_pengajuan}`, formValues);
             
@@ -90,7 +91,7 @@ const handleACC = async (item) => {
             });
 
         } catch (error) {
-            Swal.fire('Gagal', error.response?.data?.message || 'Terjadi kesalahan.', 'error');
+            error('Gagal', error.response?.data?.message || 'Terjadi kesalahan.');
         }
     }
 };
@@ -109,10 +110,10 @@ const handleTolak = async (id) => {
     if (confirm.isConfirmed) {
         try {
             await axios.post(`${import.meta.env.VITE_API_BASE_URL}/pengajuan/admin/tolak/${id}`);
-            Swal.fire('Ditolak!', 'Pengajuan telah dihapus dari antrean.', 'success');
+            success('Ditolak!', 'Pengajuan telah dihapus dari antrean.');
             fetchAntrean();
         } catch (error) {
-            Swal.fire('Error', 'Gagal menolak pengajuan.', 'error');
+            error('Error', 'Gagal menolak pengajuan.');
         }
     }
 };
@@ -125,14 +126,19 @@ onMounted(() => {
 <template>
     <div class="container-fluid pb-4">
         
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="page-header">
             <div>
                 <h2 class="fw-bold text-dark mb-0"><i class="bi bi-inboxes text-primary me-2"></i>Antrean Reservasi</h2>
                 <small class="text-muted">Kelola pengajuan peminjaman alat dari masyarakat.</small>
             </div>
-            <button @click="fetchAntrean" class="btn btn-outline-secondary btn-sm shadow-sm">
-                <i class="bi bi-arrow-clockwise"></i> Segarkan Data
-            </button>
+            <div class="page-header-actions">
+                <button @click="fetchAntrean" class="btn btn-outline-secondary btn-sm shadow-sm touch-target">
+                    <i class="bi bi-arrow-clockwise"></i> Segarkan Data
+                </button>
+                <RouterLink to="/aset" class="btn btn-outline-primary btn-sm shadow-sm touch-target">
+                    <i class="bi bi-arrow-left"></i> Kembali ke Manajemen Aset
+                </RouterLink>
+            </div>
         </div>
 
         <div v-if="loading" class="text-center py-5 my-5">
@@ -209,10 +215,10 @@ onMounted(() => {
 
                     <!-- Tombol Aksi -->
                     <div class="card-footer bg-white border-top p-3 d-flex gap-2">
-                        <button @click="handleTolak(item.id_pengajuan)" class="btn btn-outline-danger w-50 fw-bold">
+                        <button @click="handleTolak(item.id_pengajuan)" class="btn btn-outline-danger w-50 fw-bold touch-target">
                             <i class="bi bi-x-lg"></i> Tolak
                         </button>
-                        <button @click="handleACC(item)" class="btn btn-success w-50 fw-bold shadow-sm">
+                        <button @click="handleACC(item)" class="btn btn-success w-50 fw-bold shadow-sm touch-target">
                             <i class="bi bi-check2-all"></i> ACC Pengajuan
                         </button>
                     </div>

@@ -12,6 +12,7 @@ import 'leaflet/dist/leaflet.css'
 
 //Import CSS
 import './assets/main.css'
+import Swal from 'sweetalert2'
 
 axios.interceptors.request.use(
     (config) => {

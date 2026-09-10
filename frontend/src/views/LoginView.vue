@@ -2,7 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-import Swal from 'sweetalert2';
+import { success, error, warning } from '../utils/feedback';
 
 import bg1 from '../assets/images/bg-mektan-1.jpg';
 import bg2 from '../assets/images/bg-mektan-2.jpg';
@@ -33,14 +33,7 @@ onUnmounted(() => {
 // --- LOGIKA LOGIN & SWEETALERT CUSTOM ANIMATION ---
 const handleLogin = async () => {
     if (!identifier.value || !password.value) {
-        Swal.fire({
-            title: 'Ups, Ada yang Kosong!',
-            text: 'Mohon isi Username/Email dan Password Anda.',
-            icon: 'warning',
-            confirmButtonColor: '#10b981', 
-            showClass: { popup: 'animate__animated animate__headShake' },
-            hideClass: { popup: 'animate__animated animate__fadeOutUp' }
-        });
+        warning('Ups, Ada yang Kosong!', 'Mohon isi Username/Email dan Password Anda.');
         return;
     }
 
@@ -57,34 +50,13 @@ const handleLogin = async () => {
             sessionStorage.setItem('user', JSON.stringify(userData));
             sessionStorage.setItem('token', response.data.token);
 
-            Swal.fire({
-                icon: 'success',
-                title: 'Autentikasi Berhasil',
-                text: `Selamat datang kembali, ${userData.nama || userData.username || 'Admin Mektan'}!`,
-                timer: 2000,
-                showConfirmButton: false,
-                backdrop: `rgba(15, 23, 42, 0.8)`, 
-                color: '#1e293b',
-                customClass: {
-                    popup: 'rounded-4 shadow-lg border-0',
-                    title: 'text-agri-green fw-bold'
-                },
-                showClass: { popup: 'animate__animated animate__bounceInDown' },
-                hideClass: { popup: 'animate__animated animate__bounceOutUp' }
-            }).then(() => {
+            success('Autentikasi Berhasil', `Selamat datang kembali, ${userData.nama || userData.username || 'Admin Mektan'}!`).then(() => {
                 window.location.href = '/';
             });
         }
     } catch (error) {
         const pesan = error.response?.data?.message || 'Terjadi kesalahan saat login.';
-        Swal.fire({
-            title: 'Akses Ditolak',
-            text: pesan,
-            icon: 'error',
-            confirmButtonColor: '#ef4444',
-            showClass: { popup: 'animate__animated animate__wobble' },
-            hideClass: { popup: 'animate__animated animate__zoomOut' }
-        });
+        error('Akses Ditolak', pesan);
     } finally {
         loading.value = false;
     }
@@ -125,14 +97,14 @@ const handleLogin = async () => {
             </div>
 
             <!-- BAGIAN KANAN: FORMULIR LOGIN -->
-            <div class="col-lg-5 col-md-6 d-flex flex-column align-items-center justify-content-center bg-white position-relative">
+            <div class="col-lg-5 col-md-6 d-flex flex-column align-items-center bg-white position-relative overflow-y-auto">
                 
                 <!-- TOMBOL KEMBALI KE BERANDA (DITAMBAHKAN DI SINI) -->
                 <RouterLink to="/" class="position-absolute top-0 start-0 m-4 text-decoration-none text-muted transition-link d-flex align-items-center fw-bold" style="z-index: 10;">
                     <i class="bi bi-arrow-left me-2"></i> Beranda
                 </RouterLink>
 
-                <div class="w-100 px-4 px-lg-5" style="max-width: 450px;">
+                <div class="w-100 px-4 px-lg-5 my-auto" style="max-width: 450px;">
                     
                     <div class="text-center mb-4 mt-3">
                         
@@ -177,7 +149,7 @@ const handleLogin = async () => {
                     <div class="text-center mt-4 pt-4 border-top">
                         <small class="text-muted d-block mb-2" style="font-size: 0.9rem;">
                             Belum punya akun? 
-                            <RouterLink to="/register" class="text-agri-green fw-bold text-decoration-none transition-link">Registrasi</RouterLink>
+                            <RouterLink to="/register" class="text-agri-green fw-bold d-inline-block py-2 ms-1 px-1 text-decoration-none transition-link">Registrasi</RouterLink>
                         </small>
                     </div>
 
@@ -250,6 +222,10 @@ const handleLogin = async () => {
     border-color: #10b981;
     box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.15);
     background-color: #fff;
+}
+
+@media (max-width: 767.98px) {
+    .custom-input-wrapper .btn { min-width: 44px; min-height: 44px; }
 }
 
 .custom-input::placeholder {

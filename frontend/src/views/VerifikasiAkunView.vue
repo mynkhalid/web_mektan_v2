@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { loading as showLoadingAlert, success, error } from '../utils/feedback';
 
 const pendingUsers = ref([]);
 const loading = ref(true);
@@ -32,14 +33,14 @@ const handleVerify = async (user, action) => {
 
     if (confirm.isConfirmed) {
         try {
-            Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            showLoadingAlert('Memproses...', '');
             
             const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/users/verify/${user.user_id}`, { action });
             
-            Swal.fire('Berhasil!', response.data.message, 'success');
+            success('Berhasil!', response.data.message);
             fetchPendingUsers(); // Segarkan tabel
         } catch (error) {
-            Swal.fire('Gagal', 'Terjadi kesalahan saat memproses verifikasi.', 'error');
+            error('Gagal', 'Terjadi kesalahan saat memproses verifikasi.');
         }
     }
 };
