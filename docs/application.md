@@ -1,178 +1,266 @@
-> [!NOTE]
-> Dokumentasi pada layer aplikasi. Isinya tentang website
-> 
+# Application Layer — MyMektan
 
-```
-                                                                ....;dkxOXk..                                           
-                                                   ..',:cllc:;,...'cxko'oXN:.             ................              
-                                                       ..':ONXxo;;okkkkdcKXX,..         ...ol........;ok...             
-   ..                        .                  ..    ......'. .,xkkkxc,,0KX0'..        ...xWk'..'cxKNX;....            
-    .                        ...             ..'''...          .,dkd,.:ddOKXNK:..     .....oWNO,c0NNNXc.....            
-    ..  .              ..    ..'.            .''''...          ',d:..lx,. lXNWkl..   ......,KWNONNNNXc......            
-    ....;.          ... ... ....'.           ..'''..           ';xx;..ood.'d0X0NK:........cxKNWWWNKx;.......            
-    ...'.        ..     ....',...' .....      .''...           ',xO:  .o,.;oKXNNNNk......:kXNNWWWWXd,.......            
-     ...,'     .      ....'.;:..........      ..'...           .,dkxc.  ,xO0Kk0NNNNKc......'cXWNONWWo........           
-.''. .....             ...',;:;c'.....         .....           .'dxxkd ,kkO0o;:o0XNNNl......kWNd',cdo......     .       
- .':.            ..     ..,::;.......                          ..oxxxc.xkkOk,,,;lKXXNK;.....0O:............             
- ....      .    ....   .....:,......'.         .....           ..;;cl,dkkk0l,,;lOXXXXXo.....'......:.......             
-....          ....... ... ......  ...'       ...'....                 ..;ll..'l0XXXXNK. ..........,o'......       ..... 
-               .';..      .....              .........                  ...':ldxO0XNN:..      ......................... 
-   ..         .......      ...                                              ..'ck00Kd...                 .............. 
-       .        .                                                               .,o0Kd,......         ..................
-  .    .   .                                                                        .:dx:......    .....................
-                                                ..  ...... .......                     .,::...... ......................
-                                   . . ..    ...........................                   ,,...........................
-                         .        ......    ..................................              ............................
-     ..                 ..      .......   ........................... .......'....            ..........................
-                     ...       ........  ..............'. ..............,:,;lx0oOxc..,.     ...................''''''''.
- ....                ..     . ........   .............'.  ..........:,;o0od0XNW0kNWXkxk. ............''''',,,;;;;;,,,,,'
- ....           ...        ..........   .. .............' .;..,;,..c:,O0Ko:KXXWWkNWWXXKx'........',;:cloxkO00KKKK00Okxoc
-                ..'.....  ...........  .  .........  ..oc .'...'.....cl:x:.oXKXW0NWWWXK:l....';clx0XXNWWMMMMMMMMMMMMMMWK
-               ...'....  ............    ........   .:Okl...........'.',o'.,OOKXKNWWWWWd'l;cdOKXNWWWWWWMMMMMMMMMMMMMMMMX
-..             ..,... .   ..........      .... .. .,dO0kl.........'....':..'odOKKXNNWWNX,:0XNWWWWWWWWWMMMMMMMMMMMMMMMMMX
-                   ..     ..........      ..'. ..';::codc .. ..........,l,..ccx00XXXNNNN00KWWWWWWWWWWMMMMMMMMMMMMMMMMMMX
-           .      ...     ....... .. ..,,;;;;cccxOOOkoc,. .. ..........:0c..,,lOxXXXXNNXWX0XWWWWWWWMMMMMMMMMMMMMMMMMMMMX
-          ........... ..  ....... ..:c;.,..;:''oxxxkOOOo..:;........ .'0Nd,.'';dlKXXKXNXWWKXWWWWWWWWWMMMMMMMMMMMMMMMMMMX
-         ........... .c.  ........ ..           .'lddkx,;xo'....... ..lkxc,...,'dKKKKKXXNWW0WWWWWWWWWMMMMMMMMMMMMMMMMMMX
-        ............ :c.  .... ....'; .'..'occ,':..'odcdOk;.........;x0KXO:....'O0KK0K0KXWW:NWWWWWWWMMMMMMMMMMMMMMMMMMMX
-       ............. ::  .....  ...'xc'l,;l0o:,;OOx;;kOOd,......,.,dxxxdkKx'.. o0000OK0OXWo:KWWWWWWMWMMMMMMMMMMMMMMMMMMX
-        ............ .;  ......  .''dOxdc:odo::x000kdol:;,...':loxl,......c:. 'OOOOOxKNOKx;0XWWWWWWWWMMMMMMMMMMMMMMMMMMX
-        ..........       .. ....  .;:kOOxoddlck0000000Oxl,;ldk00d';x:.lx. .. .oxkkkokKNOxkx0XNNXKKKKKNWMMMMMMMMMMMMMMMMX
-.   ...........          .. .....  .':kOOOOOOOO00000OkxxkO000000:ckk:c0k:'   .lxxxo:kxdolodddoooooddxKWMMMMMMMMMMMMMMMMX
-     .....               ..   .... ''.'okkkOOO00000000K00000000Kxolck00k:   .,lddc;cllodlx0dooddxxxkkKMMMMMMMMMMMMMMMMMX
-                          ..   ....lOxocldkkO00000000K0000000KKKK0xx000c.  .,,;;;olcd0kdl0KXNWWWWWWWWWMMMMMMMMMMMMMMMMMX
- .. .......  ...          ..     ..'x0000OkO0000000KKKKKKK000KNXK000KKo  ..'...ddxcO0KXk0WWWWWWWWMWWWWWMMMMMMMMMMMMMMMMX
-   ........  ...    ...   .....   .,.:x0000000000KKKKKKKKKKKKKKKK0000O'...   .;d:;cdK0KXWWWWWWWWWWMMMMWWMMMMMMMMMMMMMMMX
-   ........  ...    .,'  . .....  'lloddkkO000KKKKKKKKKKKKKKKKKKKKKKX;..  .'.'cc..,cOKNWWWWWWWWWWWWWWWWWWWMMMMMMMMMMMMMX
-  ......... ...    ..c;  .  ......:ddoxO000000KKKKKKKKKKK0O0KKKKKKXNo.... .''cdko...;d0XKNWWWWWWWWkoNNkddxkO0XWWMMMMMMMX
-  ......... ...   ..:d:  .. ... ..xodxxxxk000KKKKKKKKKKKKKKKKKKXNWK:....  .,:0OO0xl'..,lx:d0WWWWWXlllllllllloooOWWWMMMMX
- .......... ...  ..dckl  ... .....klxxxxxddxO0KKKKKKKKKKKKKKKKXX0c..........,0000ONW0dl:'':0WWWWWKllllllllllllokkoOWMMMX
- .......... .. ...ok:kd   ........oldxxxxxdolodO0KKKKKKKKKKOdd0NN0l.........'x0O0xkXNNXOkKWWWWWWWNdddxxxxxddooolldNMMWWX
- .........  ' ...dkdckk. . .....  .cdddxxxxxdlcclldOKKK0ko;.';.cOXXklo'.....,lOxKOxKWWWWWWWWWWWWWWXxkkkkkkkkkxdoxNWMMWWK
- ....... ..., ..lK:ookO; .  ... .  ...,:cdxxxxdll;lddxxo'....'.ckOO0KXNOc'..'clcKXkxKWWWWWWWWWWWWWWNOkxxkkkkkxkKWWWWWWWK
-........ '.,,..cKo.ldkOo     ...    ......':oxxxx;lxxxxx'.....:k00KOxxKNWNKl',;;kXKxxKWWWWWWWWWWWWWWWWNXKK0KKNWWWWWWWWWK
-.......  ;.l..:0O.'xxkkk'      ..  ..........,ld,.:xxxxxl....;k00OooxXWMWWNN0XkckKX0dx0XWWWWWWWWWWWWWMMMMMWWMMMMMMWWWWWK
-.......  :,l.c0K; codxkkc   .     .. ..........'..,codddd;..'c:;x0lxKXK00KXWWNNNWNKKOdxOKNWWWWWWWWWWWWWWMMWWMMMWWWWWNNWK
-......  .locl0Ko.,cclodxx.   .     .   ...........'...',,,......'xddxodx0XXXNWW0KXNKKOdkK00NWWWWWWWWWWWWWWWWWWWWWWWWWKXK
-.....   'oxkO0O.':,;:codo.              .        ..:lc,.   ;:;,':ldddoxxldkNWOdodONW000x0WN0KNNWWWWWWWWWWWWWWWWWWWWWWKO0
-....    :xxxkO:';',,;;,.               ...        ..coldl,..x00xclloodxdodxOWKxdxKNWW0O0O0WWNXKKKXNWWWWWWWWWWWWWWWWXK0XK
-....   .oxodkl:;.                       .........':;';codxd..x00OoccloddoddxkXWKOXMMMWXkkO0KKNWX0O000KXXNNNNXXXK00OO0NWK
-...    'xd:dc:'.                      .. .......cddddcdoodxo..oxdc'.,clooodddx0WWKKWMMWXOkkkxk0KKO00000OOOOkkkkkO0KNWWWK
-.. ..  co'cl'.  .......                .:ol:cdc;coodd:lxxxdo,  ,...  .:loodddddkXWX0WWWWOxOOOOO0KNNNX0XXXXXKXXXNWWWWWWWK
-. .:. .o'':. .....'',,''..               .okkOOo'.',;.':ccccc.   ......,loodddddx0WkKWWWWKoooOK00O0XWN0WWWWWWWWWWWWWWWWK
- .c; .:'.'  ..........,,,,'.               lddxkOl.   .':clll,    ... ..:llodddddd0kx0NNWWWl'.,c0O0OO0OXWWWWWWWWWWWWWWWK
-,cl. '. .. .......'''.''';;;,.     ....     cco,:xk,     .';c:..      ..coooddddddxodddkWMWO;..';ddO000OXWWWWWWWWWWWWWWK
-ll, .  .'. .......''''.'..';;;'.      ..    .ll,  ;x;       .....      .odxxxxxxxx.,odddkNWOl:.  cONWX0o:kWWWWWWWWWWWWWK
-:;.   ..'. .......'',,'..,..,;;;.           .:,    .:              ....;dxxxxkKKK:  .:dxxxXOllc. .kkXWWXl'lXWWWWWWWWWWWK
-'.  ...''..........'',,,'',,.',,'..         ..       .        .''..,'.'oxxxxxXWN0o.   .cdxxdlc,.. ;OokKNWx'cXWWWWWWWWWWK
-.   ...''........''',,,,,,,,,,......             .         .,;;,..',,,:dxxxx0WWWcol     .;ool,.....O0ddk0K:'lNWWWWWWWWWK
-   .....'........'..',,,,,,,,,,'.....                     .;,....',,.,dxxxkkXWWX;':;.     .;,''... lXOkO00c,,xNWWWNXK0ko
+> Dokumen ini menjelaskan layer aplikasi MyMektan: antarmuka web Vue 3, API backend Express, database PostgreSQL (Supabase), integrasi MQTT, penyimpanan gambar, dan deployment.
+
+## 1. Ringkasan
+
+MyMektan adalah platform IoT untuk memantau lokasi, status mesin, tegangan aki, jam kerja, dan estimasi luas lahan alsintan. Layer aplikasi terdiri dari:
+
+- **Frontend**: single-page application Vue 3 yang menampilkan dashboard, peta, katalog aset, estimasi lahan, dan alur peminjaman.
+- **Backend**: REST API Express yang menangani autentikasi, data aset, pengajuan peminjaman, serta ingestion data MQTT ke database.
+- **Database**: PostgreSQL yang di-host di Supabase.
+- **Messaging**: HiveMQ Cloud sebagai broker MQTT untuk data realtime dari perangkat ESP32.
+- **Storage**: Cloudinary untuk gambar aset dan foto profil.
+
+## 2. Arsitektur Aplikasi
+
+```mermaid
+flowchart LR
+    device["ESP32<br/>GPS · INA219 · SIM7600G"] -->|"MQTT / TLS"| broker["HiveMQ Cloud"]
+    broker --> backend["Backend API<br/>Express + MQTT ingestor"]
+    backend --> database[("Supabase<br/>PostgreSQL")]
+    backend --> storage["Cloudinary"]
+    frontend["Frontend SPA<br/>Vue 3 + Vite"] -->|"REST API"| backend
+    frontend -->|"MQTT over WSS"| broker
 ```
 
-# 🚜 Si-Alsintan (Sistem Monitoring Alat dan Mesin Pertanian)
+Alur data:
 
-![Status](https://img.shields.io/badge/Status-Development-orange)
-![Node.js](https://img.shields.io/badge/Node.js-v22.17.0-green)
-![Vue.js](https://img.shields.io/badge/Vue.js-3.x-4FC08D?logo=vue.js)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Ready-336791?logo=postgresql)
+1. Perangkat mengirim data lokasi dan telemetri ke topik MQTT.
+2. Backend memvalidasi data, menghitung status mesin, jam kerja, dan jarak kerja, lalu menyimpannya ke database.
+3. Frontend memuat data historis melalui REST API dan menerima pembaruan realtime melalui MQTT over WSS.
+4. Admin mengelola aset, memverifikasi akun, dan memproses pengajuan peminjaman melalui antarmuka web.
 
-**Si-Alsintan** adalah sebuah platform berbasis *Internet of Things* (IoT) dan Web yang dikembangkan untuk **UPTD Balai Pengembangan Mekanisasi Pertanian Provinsi Jawa Barat**. Sistem ini dirancang untuk memantau pergerakan, status mesin, dan estimasi luas lahan yang dikerjakan oleh armada traktor secara *real-time*.
+## 3. Fitur Utama
 
-## ✨ Fitur Utama
-* **Real-time Live Tracking:** Memantau pergerakan armada secara langsung via MQTT Broker (HiveMQ) dengan filter keamanan GPS.
-* **Manajemen Aset (Hardware Provisioning):** Registrasi ID perangkat IoT ke traktor fisik secara dinamis.
-* **Estimasi Lahan:** Kalkulasi otomatis performa traktor berdasarkan jarak tempuh dan koordinat.
-* **Role-Based Access Control (RBAC):** Pemisahan hak akses antara `Admin` (Pihak BP Mektan) dan `Super Admin` (Developer Area) untuk keamanan operasional.
+- Pemantauan lokasi dan status mesin secara realtime.
+- Telemetri tegangan aki, arus, HDOP, dan jumlah satelit GPS.
+- Perhitungan hour meter dan jarak kerja.
+- Estimasi luas lahan dan biaya jasa berdasarkan riwayat perjalanan.
+- Katalog aset publik dengan detail spesifikasi dan ketersediaan.
+- Pengajuan peminjaman alsintan oleh masyarakat.
+- Antrean pengajuan dan penerbitan surat jalan digital dengan QR code.
+- Registrasi akun UPJA dan verifikasi oleh admin Mektan.
+- Manajemen aset dengan unggah gambar.
+- Autentikasi JWT dengan satu sesi aktif per akun.
 
-## 🏗️ Struktur Repositori (Monorepo)
-Proyek ini mengadopsi struktur monorepo yang memisahkan ranah aplikasi:
-* `/frontend` : Direktori antarmuka web menggunakan Vue.js 3 & Vite.
-* `/backend`  : Direktori API dan Service IoT menggunakan Node.js & Express.
-* `/esp`      : Direktori *firmware* perangkat keras (ESP32/Arduino C++).
-* `/docs`     : Dokumentasi tambahan dan *database dump*.
+## 4. Peran Pengguna
 
----
+| Peran | Akses utama |
+| --- | --- |
+| Guest | Dashboard, katalog aset, detail aset, pengajuan peminjaman, dan registrasi akun. |
+| UPJA | Login, profil, monitoring peta, estimasi lahan, dan pengajuan peminjaman. |
+| Mektan | Seluruh fitur UPJA ditambah manajemen aset, verifikasi akun, pengelolaan antrean, dan transaksi peminjaman. |
 
-## 🛠️ Persyaratan Sistem (Prerequisites)
-Sebelum menjalankan proyek ini di mesin lokal, pastikan Anda telah menginstal:
-1. **Node.js** (Wajib versi **v22.17.0** atau lebih baru)
-2. **PostgreSQL** (Service database berjalan di port 5432)
-3. **Git**
+Registrasi publik membuat akun dengan role `upja` dan status `pending`. Akun baru dapat digunakan setelah diverifikasi oleh admin `mektan`.
 
----
+## 5. Struktur Layer Aplikasi
 
-## 🚀 Panduan Instalasi & Menjalankan Sistem
-
-### Persiapan Database (PostgreSQL)
-1. Buat *database* baru di PostgreSQL (misal: `db_alsintan`).
-2. Import struktur tabel dengan mengeksekusi file SQL dump yang telah disediakan:
-
+```text
+web_mektan_v2/
+├── backend/
+│   ├── config/          # Koneksi PostgreSQL
+│   ├── controllers/     # Handler request
+│   ├── middleware/      # Autentikasi JWT dan upload
+│   ├── routes/          # Definisi endpoint API
+│   ├── services/        # MQTT subscriber dan pemrosesan telemetri
+│   ├── db_alsintan.sql  # Schema database
+│   ├── .env.example     # Template environment backend
+│   └── index.js         # Entry point backend
+└── frontend/
+    ├── public/          # Aset publik
+    ├── src/
+    │   ├── components/  # Sidebar, topbar, footer
+    │   ├── router/      # Route dan navigation guard
+    │   ├── utils/       # Helper notifikasi
+    │   └── views/       # Halaman aplikasi
+    ├── .env.example     # Template environment frontend
+    ├── vite.config.js
+    └── vercel.json
 ```
-psql -U postgres -d db_alsintan -f docs/db_alsintan.sql # Contoh jika menggunakan psql command line
-```
 
-## Konfigurasi Backend (Node.js)
+## 6. Teknologi
 
-Cek  `package-lock.json` dulu
-1. Aktifkan Mode GSM
-```
+| Layer | Teknologi |
+| --- | --- |
+| Frontend | Vue 3, Vite, Vue Router, Bootstrap 5, Leaflet, MQTT.js, Axios, SweetAlert2 |
+| Backend | Node.js, Express 5, JWT, bcrypt, Multer, Cloudinary |
+| Database | PostgreSQL (Supabase) |
+| Messaging | MQTT over TLS (HiveMQ Cloud) |
+| Deployment | Render (backend) dan Vercel (frontend) |
+
+## 7. Prasyarat
+
+- Node.js 22 LTS dan npm.
+- Proyek Supabase (PostgreSQL).
+- Broker HiveMQ Cloud.
+- Akun Cloudinary.
+- Git.
+
+## 8. Konfigurasi Database
+
+1. Buat proyek baru di Supabase.
+2. Buka **SQL Editor** pada dashboard Supabase.
+3. Jalankan seluruh isi file [`backend/db_alsintan.sql`](../backend/db_alsintan.sql).
+4. Buka **Project Settings → Database**, lalu salin connection string PostgreSQL.
+5. Gunakan connection string tersebut sebagai `DATABASE_URL` pada environment backend.
+
+Jika koneksi langsung tidak tersedia dari platform hosting, gunakan connection string **Session Pooler** dari Supabase.
+
+### Tabel utama
+
+| Tabel | Fungsi |
+| --- | --- |
+| `users` | Akun, role, profil, status verifikasi, dan token sesi aktif. |
+| `alsintan` | Data master aset, status operasional, ketersediaan, koordinat, dan gambar. |
+| `monitoring_status` | Status live per aset: status mesin, status IoT, tegangan aki, hour meter, jarak kerja, HDOP, dan satelit. |
+| `riwayat_perjalanan` | Riwayat koordinat per aset. |
+| `riwayat_telemetri` | Riwayat tegangan dan arus per aset. |
+| `pengajuan_publik` | Pengajuan peminjaman dari masyarakat. |
+| `transaksi_peminjaman` | Transaksi peminjaman resmi dan pengembalian aset. |
+| `pengaturan_sistem` | Pengaturan sistem, termasuk tarif jasa per hektar. |
+
+## 9. Konfigurasi Backend
+
+### Instalasi
+
+```bash
 cd backend
 npm install
+cp .env.example .env
+# Windows: copy .env.example .env
 ```
 
-2. Buat file .env di dalam folder backend dan sesuaikan nilainya:
-```
-PORT=3000
-TZ=Asia/Jakarta
+### Environment variable
 
-# Konfigurasi Database
-DB_HOST=localhost
-DB_USER=postgres
-DB_PASSWORD=password_db_anda
-DB_NAME=db_alsintan
-DB_PORT=5432
+| Variable | Contoh | Keterangan |
+| --- | --- | --- |
+| `PORT` | `3000` | Port HTTP. Render menyediakan nilai ini otomatis. |
+| `DATABASE_URL` | `postgresql://postgres:password@db.<project-ref>.supabase.co:5432/postgres` | Connection string PostgreSQL Supabase. SSL diaktifkan oleh aplikasi. |
+| `JWT_SECRET` | `replace-with-a-long-random-secret` | Secret untuk menandatangani dan memverifikasi JWT. |
+| `MQTT_HOST` | `<cluster>.s1.eu.hivemq.cloud` | Hostname broker MQTT tanpa protokol. |
+| `MQTT_PORT` | `8883` | Port MQTT TLS. |
+| `MQTT_USERNAME` | `your-mqtt-username` | Username MQTT. |
+| `MQTT_PASSWORD` | `your-mqtt-password` | Password MQTT. |
+| `MQTT_TOPIC` | `project-mektan/v1/data` | Topik yang digunakan perangkat dan backend. |
+| `CLOUDINARY_CLOUD_NAME` | `your-cloud-name` | Nama cloud Cloudinary. |
+| `CLOUDINARY_API_KEY` | `your-api-key` | API key Cloudinary. |
+| `CLOUDINARY_API_SECRET` | `your-api-secret` | API secret Cloudinary. |
 
-# Keamanan
-JWT_SECRET=bp_mektan_2026
+### Menjalankan backend
 
-# IoT MQTT
-MQTT_BROKER=mqtt://broker.hivemq.com
-MQTT_USERNAME=simon_alsintan
-MQTT_PASSWORD=BPMektanJabar12
-MQTT_TOPIC=project-mektan/v1/data
-```
-
-3. Run Server Backend
-```
+```bash
 node index.js
 ```
 
-## Konfigurasi Backend (Node.js)
+Backend berjalan di `http://localhost:3000`. Endpoint root `GET /` dapat digunakan untuk mengecek status server.
 
-Cek `package-lock.json` dulu
+> Saat ini belum ada script `npm start` atau `npm run dev`. Jalankan entry point langsung dengan `node index.js`.
 
-1. Aktifkan Mode GSM
-```
+### Akun admin awal
+
+Registrasi publik hanya membuat akun `upja` dengan status `pending`. Akun `mektan` perlu dibuat manual. Panduan lengkap, termasuk pembuatan hash bcrypt dan query SQL, tersedia di [README backend](../backend/README.md).
+
+### Ringkasan endpoint API
+
+| Grup | Prefix | Fungsi |
+| --- | --- | --- |
+| Users | `/api/users` | Login, registrasi, profil, daftar akun pending, dan verifikasi akun. |
+| Alsintan | `/api/alsintan` | CRUD aset, riwayat perjalanan, reset trip, dan registrasi perangkat IoT. |
+| Monitoring | `/api/monitoring` | Update dan pembacaan status mesin. |
+| Peminjaman | `/api/peminjaman` | Peminjaman, pengecekan transaksi aktif, dan pengembalian. |
+| Pengajuan | `/api/pengajuan` | Pengajuan publik, antrean admin, ACC, dan penolakan. |
+| Settings | `/api/settings` | Pembacaan dan pembaruan tarif jasa. |
+
+Detail endpoint, contoh request/response, dan aturan akses tersedia di [README backend](../backend/README.md).
+
+## 10. Konfigurasi Frontend
+
+### Instalasi
+
+```bash
 cd frontend
 npm install
+cp .env.example .env
+# Windows: copy .env.example .env
 ```
 
-2. Buat file .env di dalam folder frontend dan sesuaikan nilainya:
-```
-# URL Utama Backend
-VITE_API_BASE_URL=http://localhost:3000/api
+### Environment variable
 
-# URL Folder Upload Gambar
-VITE_IMAGE_BASE_URL=http://localhost:3000/uploads
+| Variable | Contoh lokal | Keterangan |
+| --- | --- | --- |
+| `VITE_API_BASE_URL` | `http://localhost:3000/api` | Base URL REST API backend. |
+| `VITE_IMAGE_BASE_URL` | `http://localhost:3000/uploads` | Base URL untuk gambar dengan path relatif. Gambar Cloudinary menggunakan URL absolut. |
+| `VITE_MQTT_HOST` | `<cluster>.s1.eu.hivemq.cloud` | Hostname broker MQTT tanpa protokol. |
+| `VITE_MQTT_PORT` | `8884` | Port WebSocket Secure (WSS). Aplikasi menggunakan protokol `wss` dan path `/mqtt`. |
+| `VITE_MQTT_TOPIC` | `project-mektan/v1/data` | Topik untuk pembaruan realtime. |
+| `VITE_MQTT_USERNAME` | `your-mqtt-username` | Username MQTT. |
+| `VITE_MQTT_PASSWORD` | `your-mqtt-password` | Password MQTT. |
 
-# Konfigurasi IoT MQTT
-VITE_MQTT_BROKER=ws://[broker.hivemq.com:8000/mqtt](https://broker.hivemq.com:8000/mqtt)
-VITE_MQTT_USERNAME=simon_alsintan
-VITE_MQTT_PASSWORD=BPMektanJabar12
-VITE_MQTT_TOPIC=project-mektan/v1/data
-```
+### Menjalankan frontend
 
-3. Run Server Frontend
-```
+```bash
 npm run dev
 ```
+
+Frontend berjalan di `http://localhost:5173`.
+
+### Perintah build
+
+```bash
+npm run build
+npm run preview
+```
+
+Hasil build berada di folder `dist/`.
+
+### Halaman utama
+
+| Route | Akses | Fungsi |
+| --- | --- | --- |
+| `/` | Public | Dashboard dan peta global. |
+| `/aset` | Public | Katalog aset dan pengajuan peminjaman. |
+| `/aset/:id` | Public | Detail aset dan informasi peminjaman. |
+| `/login` | Public | Login pengguna. |
+| `/register` | Public | Registrasi akun UPJA. |
+| `/profile` | Login | Profil pengguna dan UPJA. |
+| `/monitoring` | Login | Peta monitoring armada. |
+| `/monitoring/:id` | Login | Monitoring live dan riwayat per aset. |
+| `/estimasi` | Login | Estimasi luas lahan dan biaya jasa. |
+| `/antrean` | Login | Antrean pengajuan untuk admin. |
+| `/aset/tambah` | Login, role `mektan` | Menambah aset. |
+| `/aset/edit/:id` | Login, role `mektan` | Mengubah aset. |
+| `/verifikasi-akun` | Area admin | Verifikasi akun UPJA. |
+
+Detail halaman, autentikasi, dan integrasi MQTT tersedia di [README frontend](../frontend/README.md).
+
+## 11. Deployment
+
+| Komponen | Platform | Konfigurasi |
+| --- | --- | --- |
+| Frontend | Vercel | Root directory `frontend`, build command `npm run build`, output `dist`. Tambahkan seluruh variabel `VITE_*` di dashboard Vercel. |
+| Backend | Render | Root directory `backend`, build command `npm install`, start command `node index.js`, health check path `/`. Tambahkan environment backend di dashboard Render. |
+| Database | Supabase | Jalankan `backend/db_alsintan.sql`, lalu gunakan connection string Supabase sebagai `DATABASE_URL`. |
+| MQTT | HiveMQ Cloud | Port `8883` untuk backend (TLS) dan port `8884` untuk frontend (WSS). |
+| Storage | Cloudinary | Digunakan untuk gambar aset dan foto profil. |
+
+Backend saat ini mengizinkan origin `http://localhost:5173` dan `https://mymektan.vercel.app` pada konfigurasi CORS di [`backend/index.js`](../backend/index.js). Sesuaikan daftar tersebut jika domain frontend berubah.
+
+## 12. Troubleshooting
+
+| Gejala | Penyebab umum | Tindakan |
+| --- | --- | --- |
+| Backend gagal terhubung ke database | `DATABASE_URL` salah, database tidak terjangkau, atau masalah SSL. | Periksa connection string Supabase dan akses jaringan. Aplikasi mengaktifkan SSL dengan `rejectUnauthorized: false`. |
+| MQTT terus reconnect | Host, port, kredensial, atau topik salah. | Gunakan hostname broker tanpa protokol, port `8883` untuk TLS, dan periksa kredensial HiveMQ. |
+| Frontend mendapat `401` | Token kedaluwarsa atau akun login di perangkat lain. | Login ulang untuk mendapatkan token baru. |
+| Request frontend diblokir CORS | Origin frontend tidak ada di daftar backend. | Tambahkan domain frontend ke `corsOptions.origin` pada `backend/index.js`. |
+| Gambar tidak tampil | URL gambar relatif atau kredensial Cloudinary salah. | Periksa `VITE_IMAGE_BASE_URL`, nilai `gambar`/`foto_profil`, dan environment Cloudinary. |
+| Build frontend gagal | Versi Node.js tidak didukung. | Gunakan Node.js `^20.19.0` atau `>=22.12.0`; Node.js 22 LTS direkomendasikan. |
+
+## 13. Referensi
+
+- [README proyek](../README.md)
+- [README backend](../backend/README.md)
+- [README frontend](../frontend/README.md)
+- [Perception Layer](perception.md)
+- [Network Layer](network.md)
